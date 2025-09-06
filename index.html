@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>חנויות Renuar | חיפוש מק״ט וניהול</title>
+<style>
+  :root{
+    --bg:#0e0f12;--card:#151821;--muted:#9aa4b2;--text:#eef2f7;--accent:#3e8ef7;--accent-2:#8a5cf6;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+    --radius:14px;--radius-sm:10px;--shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b0c10,#121520 40%,#0e0f12);color:var(--text);font-family:"Heebo","Arial",sans-serif}
+  header{position:sticky;top:0;background:rgba(18,21,32,.7);backdrop-filter:blur(10px);border-bottom:1px solid #202433;z-index:20}
+  .wrap{max-width:1100px;margin:auto;padding:16px}
+  .hero{display:flex;align-items:center;gap:14px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-badge{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:700}
+  .logo span{font-weight:800;letter-spacing:.3px}
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:1px solid #2a3042;background:#161a24;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.2s}
+  .btn:hover{transform:translateY(-1px);border-color:#3a425c}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid #23283a;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  h1,h2,h3{margin:0 0 10px}
+  .muted{color:var(--muted)}
+  input,select,textarea{width:100%;padding:12px 13px;border-radius:12px;border:1px solid #2a3042;background:#0f121a;color:var(--text);outline:none}
+  input:focus,textarea:focus{border-color:#3e8ef7}
+  label{font-size:.95rem;color:#cfd6e4;margin-bottom:6px;display:block}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:700px){.row{grid-template-columns:1fr}}
+  .pill{display:inline-flex;gap:8px;align-items:center;background:#121521;border:1px solid #2a3042;border-radius:999px;padding:6px 10px;font-size:.9rem}
+  .prod{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}
+  .prod img{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid #2a3042;background:#0e1018}
+  .list{display:grid;gap:12px}
+  .table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:12px;border:1px solid #2a3042}
+  .table th,.table td{padding:10px;border-bottom:1px solid #2a3042;text-align:right}
+  .table th{background:#121521;color:#cfd6e4}
+  .empty{border:1px dashed #2a3042;border-radius:12px;padding:14px;text-align:center;color:#a7b0bf}
+  .right{float:inline-start}
+  .danger{color:var(--danger)}
+  .ok{color:var(--ok)}
+  footer{opacity:.7;text-align:center;padding:28px 0}
+  .tabs{display:flex;gap:8px;margin:8px 0 14px}
+  .tabs .btn{padding:8px 10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hero" style="justify-content:space-between">
+    <div class="logo">
+      <div class="logo-badge">R</div>
+      <span>Renuar – חיפוש מק״ט וניהול</span>
+    </div>
+    <nav>
+      <button class="btn" onclick="showView('search')">🔎 חיפוש מוצר</button>
+      <button class="btn" onclick="showView('shortage')">📝 רשימת חוסרים</button>
+      <a class="btn" href="https://www.renuar.co.il" target="_blank" rel="noopener">🛍 Renuar</a>
+      <button id="loginBtn" class="btn primary" onclick="showView('auth')">👤 כניסה</button>
+      <button id="adminBtn" class="btn" style="display:none" onclick="showView('admin')">🛠 ניהול</button>
+      <button id="logoutBtn" class="btn" style="display:none" onclick="logout()">🚪 יציאה</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:18px">
+  <!-- חיפוש -->
+  <section id="view-search" class="grid">
+    <div class="card">
+      <h2>🔎 חיפוש מוצר</h2>
+      <p class="muted">הקלד <b>שם</b> או <b>מק״ט</b> ולחץ חפש</p>
+      <div class="row">
+        <div>
+          <label>שם פריט</label>
+          <input id="qName" placeholder="לדוגמה: חולצת פולו" onkeydown="if(event.key==='Enter') search()" />
+        </div>
+        <div>
+          <label>מק״ט</label>
+          <input id="qSku" placeholder="לדוגמה: M250216" onkeydown="if(event.key==='Enter') search()" />
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn primary" onclick="search()">חפש</button>
+        <span class="pill">תוצאות מקומיות</span>
+      </div>
+    </div>
+
+    <div class="card" id="searchResults">
+      <h3>תוצאות</h3>
+      <div id="resultsList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- חוסרים -->
+  <section id="view-shortage" class="grid" style="display:none">
+    <div class="card">
+      <h2>📝 רשימת חוסרים</h2>
+      <p class="muted">כתוב כאן מה חסר במחסן / בחנות. הדיווח יופיע אצל האדמין.</p>
+      <div class="row">
+        <div>
+          <label>שם פריט חסר</label>
+          <input id="shortItem" placeholder="לדוגמה: שקיות" />
+        </div>
+        <div>
+          <label>כמות דרושה</label>
+          <input id="shortQty" type="number" min="1" placeholder="50" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>הערות</label>
+          <input id="shortNote" placeholder="צבע, מידה, ספק..." />
+        </div>
+        <div style="display:flex;align-items:end">
+          <button class="btn primary" onclick="submitShortage()">שלח</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>דיווחים אחרונים</h3>
+      <div id="shortUserList" class="list"></div>
+    </div>
+  </section>
+
+  <!-- כניסה -->
+  <section id="view-auth" class="grid" style="display:none">
+    <div class="card">
+      <h2>👤 כניסה</h2>
+      <div class="row">
+        <div>
+          <label>שם משתמש</label>
+          <input id="loginUser" placeholder="לדוגמה: admin או user" />
+        </div>
+        <div>
+          <label>סיסמה</label>
+          <input id="loginPass" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn primary" onclick="login()">כניסה</button>
+        <button class="btn" onclick="showView('register')">הרשמה</button>
+      </div>
+      <p class="muted" style="margin-top:10px">⚠ זהו דמו מקומי (localStorage). אל תכניס סיסמה אמיתית.</p>
+    </div>
+
+    <div class="card">
+      <h3>פרטי אדמין ברירת מחדל</h3>
+      <div class="pill">שם משתמש: <b>admin</b></div>
+      <div class="pill">סיסמה: <b>1234</b></div>
+    </div>
+  </section>
+
+  <!-- הרשמה -->
+  <section id="view-register" class="grid" style="display:none">
+    <div class="card">
+      <h2>🆕 הרשמה</h2>
+      <div class="row">
+        <div>
+          <label>שם משתמש</label>
+          <input id="regUser" placeholder="לדוגמה: user123" />
+        </div>
+        <div>
+          <label>סיסמה</label>
+          <input id="regPass" type="password" placeholder="••••••••" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn primary" onclick="register()">צור חשבון</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- אדמין -->
+  <section id="view-admin" class="grid" style="display:none">
+    <div class="card">
+      <h2>🛠 ניהול</h2>
+      <div class="tabs">
+        <button class="btn" onclick="setAdminTab('products')">🗂 מוצרים</button>
+        <button class="btn" onclick="setAdminTab('shortages')">📝 חוסרים</button>
+        <button class="btn" onclick="setAdminTab('users')">👥 משתמשים</button>
+      </div>
+
+      <!-- מוצרים -->
+      <div id="admin-products">
+        <h3>הוספת / עריכת מוצר</h3>
+        <div class="row">
+          <div>
+            <label>שם פריט</label>
+            <input id="pName" placeholder="חולצת פולו" />
+          </div>
+          <div>
+            <label>מק״ט (ייחודי)</label>
+            <input id="pSku" placeholder="M250216" />
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>מחיר ₪</label>
+            <input id="pPrice" type="number" min="0" step="0.01" placeholder="119.90" />
+          </div>
+          <div>
+            <label>קישור תמונה (URL)</label>
+            <input id="pImg" placeholder="https://example.com/img.jpg" />
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn primary" onclick="saveProduct()">שמירה</button>
+          <button class="btn" onclick="clearProductForm()">נקה</button>
+        </div>
+
+        <h3 style="margin-top:18px">כל המוצרים</h3>
+        <div id="adminProdList" class="list"></div>
+      </div>
+
+      <!-- חוסרים -->
+      <div id="admin-shortages" style="display:none">
+        <h3>דיווחי חוסרים</h3>
+        <table class="table" id="shortTable">
+          <thead><tr><th>תאריך</th><th>משתמש</th><th>פריט</th><th>כמות</th><th>הערות</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="emptyShort" class="empty" style="display:none">אין דיווחים כרגע</div>
+      </div>
+
+      <!-- משתמשים -->
+      <div id="admin-users" style="display:none">
+        <h3>משתמשים</h3>
+        <table class="table" id="usersTable">
+          <thead><tr><th>שם משתמש</th><th>תפקיד</th><th>נוצר בתאריך</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>הערות אבטחה</h3>
+      <ul class="muted">
+        <li>זהו דמו מקומי (localStorage) בלבד.</li>
+        <li>לשימוש אמיתי דרוש backend מאובטח (כמו Firebase או Node/Express).</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap muted">© <span id="year"></span> Renuar Demo – גרסת הדגמה מקומית</div>
+</footer>
+
+<script>
+/* אותו קוד JS כמו בגרסה הקודמת */
+const LS = {
+  get(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def }},
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+};
+const $$ = s=>document.querySelector(s);
+const $all = s=>Array.from(document.querySelectorAll(s));
+
+(function seed(){
+  if(!LS.get('users')) {
+    LS.set('users', [ {username:'admin', pass:'1234', role:'admin', created: Date.now()} ]);
+  }
+  if(!LS.get('products')) {
+    LS.set('products', [
+      {name:'חולצת פולו אמבר', sku:'M250216', price:119.90, img:''},
+      {name:'ג׳ינס לבן רחב', sku:'G199990', price:199.90, img:''},
+      {name:'סניקרס Gaimi חום', sku:'S149900', price:149.90, img:''},
+    ]);
+  }
+  if(!LS.get('shortages')) LS.set('shortages', []);
+  if(!LS.get('shortUserFeed')) LS.set('shortUserFeed', []);
+})();
+document.getElementById('year').textContent=new Date().getFullYear();
+
+function showView(name){
+  const ids=['search','shortage','auth','register','admin'];
+  ids.forEach(id=> {
+    const el=document.getElementById('view-'+id);
+    if(el) el.style.display=(id===name)?'grid':'none';
+  });
+  if(name==='search') renderResults([]);
+  if(name==='shortage') renderShortUserFeed();
+  if(name==='admin'){ ensureAdmin(); renderAdmin(); }
+}
+function setAdminTab(tab){
+  $$('#admin-products').style.display=tab==='products'?'block':'none';
+  $$('#admin-shortages').style.display=tab==='shortages'?'block':'none';
+  $$('#admin-users').style.display=tab==='users'?'block':'none';
+  if(tab==='shortages') renderAdminShortages();
+  if(tab==='users') renderUsers();
+  if(tab==='products') renderAdminProducts();
+}
+
+/* Auth */
+function currentUser(){ return LS.get('currentUser',null) }
+function login(){
+  const u=$$('#loginUser').value.trim(); const p=$$('#loginPass').value;
+  const users=LS.get('users',[]);
+  const found=users.find(x=>x.username===u && x.pass===p);
+  if(!found){alert('❌ שם משתמש או סיסמה לא נכונים');return}
+  LS.set('currentUser',{username:found.username,role:found.role});
+  updateAuthUI();
+  showView(found.role==='admin'?'admin':'search');
+}
+function logout(){localStorage.removeItem('currentUser');updateAuthUI();showView('auth')}
+function register(){
+  const u=$$('#regUser').value.trim(); const p=$$('#regPass').value;
+  if(!u||!p){alert('הכנס שם וסיסמה');return}
+  let users=LS.get('users',[]);
+  if(users.some(x=>x.username===u)){alert('שם תפוס');return}
+  users.push({username:u,pass:p,role:'user',created:Date.now()});
+  LS.set('users',users);
+  alert('✅ נוצר חשבון חדש');
+  showView('auth');
+}
+function ensureAdmin(){const cu=currentUser();if(!cu||cu.role!=='admin'){alert('נדרשת כניסת אדמין');showView('auth')}}
+function updateAuthUI(){
+  const cu=currentUser();
+  $$('#loginBtn').style.display=cu?'none':'inline-block';
+  $$('#logoutBtn').style.display=cu?'inline-block':'none';
+  $$('#adminBtn').style.display=(cu&&cu.role==='admin')?'inline-block':'none';
+}
+updateAuthUI();
+
+/* Search */
+function search(){
+  const name=$
