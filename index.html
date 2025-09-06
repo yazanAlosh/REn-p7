@@ -1,15 +1,19 @@
 <!doctype html>
 <html lang="he" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Renuar – חיפוש מק״ט, מלאי וניהול</title>
-<meta name="description" content="דמו מקומי: חיפוש מוצר לפי שם/מק״ט, ניהול מלאי, דיווח חוסרים, והרשאות משתמש." />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Renuar – מערכת חנות: מק״ט, מלאי, מכירות, שעות ואדמין</title>
+<meta name="description" content="מערכת צוות לחנות: חיפוש מוצרים, ניהול מלאי, מכירות, יעדים, שעות עבודה, חוסרים ומשתמשים.">
 <style>
   :root{
     --bg:#0b0e14;--bg2:#0f1320;--card:#121827;--muted:#a6b2c6;--text:#eef2f7;
     --accent:#6aa5ff;--accent2:#b67cff;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
     --ring:#2b3550;--radius:16px;--shadow:0 18px 45px rgba(0,0,0,.35)
+  }
+  [data-theme="light"]{
+    --bg:#f7f8fb;--bg2:#eef1f8;--card:#ffffff;--muted:#5f6b7a;--text:#0e1220;
+    --accent:#3e8ef7;--accent2:#8a5cf6;--ring:#dfe5f2;--shadow:0 18px 45px rgba(0,0,0,.08)
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -18,90 +22,71 @@
     background:
       radial-gradient(1200px 800px at 10% -10%,#1e2b55 0%,transparent 60%),
       radial-gradient(900px 900px at 110% 0%,#2a194d 0%,transparent 55%),
-      linear-gradient(180deg,var(--bg),var(--bg2) 60%,#0b0e14);
+      linear-gradient(180deg,var(--bg),var(--bg2) 60%,var(--bg));
   }
-  /* Header */
-  header{position:sticky;top:0;z-index:50;border-bottom:1px solid #1f2740;
-    background:rgba(10,14,25,.6);backdrop-filter:blur(10px)}
-  .wrap{max-width:1120px;margin:auto;padding:16px}
+  [data-theme="light"] body{
+    background:linear-gradient(180deg,var(--bg),var(--bg2) 60%,var(--bg));
+  }
+  header{position:sticky;top:0;z-index:50;border-bottom:1px solid #1f2740;background:rgba(10,14,25,.6);backdrop-filter:blur(10px)}
+  [data-theme="light"] header{background:rgba(255,255,255,.65);border-bottom-color:#e6e9f2}
+  .wrap{max-width:1160px;margin:auto;padding:16px}
   .hero{display:flex;align-items:center;gap:14px;justify-content:space-between}
   .logo{display:flex;align-items:center;gap:12px}
-  .badge{
-    width:40px;height:40px;border-radius:12px;
-    background:conic-gradient(from 0deg at 50% 50%,var(--accent),var(--accent2),var(--accent));
-    display:grid;place-items:center;font-weight:800;color:#0c1020;box-shadow:0 6px 16px rgba(106,165,255,.35)
-  }
+  .badge{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 0deg,var(--accent),var(--accent2),var(--accent));display:grid;place-items:center;font-weight:800;color:#0c1020;box-shadow:0 6px 16px rgba(106,165,255,.35)}
   .logo span{font-weight:900;letter-spacing:.3px}
   nav{display:flex;gap:8px;flex-wrap:wrap}
-  /* Buttons */
-  .btn{
-    position:relative;overflow:hidden;isolation:isolate;
-    border:1px solid var(--ring);background:#121627;color:var(--text);
-    padding:10px 14px;border-radius:12px;cursor:pointer;transition:.18s;
-    box-shadow:0 4px 18px rgba(0,0,0,.18)
-  }
+  .btn{position:relative;overflow:hidden;isolation:isolate;border:1px solid var(--ring);background:#121627;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.18s;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+  [data-theme="light"] .btn{background:#fff}
   .btn:hover{transform:translateY(-1px);border-color:#36406a}
-  .btn.primary{
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    border:none;color:#0c1020;font-weight:800
-  }
+  [data-theme="light"] .btn:hover{border-color:#cfd7ea}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#0c1020;font-weight:800}
   .btn.ghost{background:transparent}
   .btn:active{transform:translateY(0)}
-  .btn::after{/* sheen */
-    content:"";position:absolute;inset:-100% auto auto -100%;width:120%;height:220%;
-    background:linear-gradient(120deg,transparent,rgba(255,255,255,.15),transparent);
-    transform:rotate(25deg);transition:.6s;z-index:-1
-  }
-  .btn:hover::after{inset:-30% auto auto -10%}
-  /* Ripple */
+  .btn[type="button"]{/* ضمان عدم submit */}
   .ripple{position:relative;overflow:hidden}
-  .ripple span.rp{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;background:rgba(255,255,255,.25)}
+  .ripple span.rp{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;background:rgba(255,255,255,.28)}
   @keyframes ripple{to{transform:scale(12);opacity:0}}
-  /* Layout */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media (max-width:980px){.grid{grid-template-columns:1fr}}
   .card{background:rgba(14,18,32,.72);border:1px solid #1b2240;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  [data-theme="light"] .card{background:#fff;border-color:#e9edf7}
   h1,h2,h3{margin:0 0 10px}
   .muted{color:var(--muted)}
   label{display:block;color:#cbd6ec;margin:6px 0 6px;font-size:.95rem}
-  input,select,textarea{
-    width:100%;padding:12px 13px;border-radius:12px;border:1px solid #233055;background:#0d1220;color:var(--text);outline:none;
-    transition:.18s;box-shadow:inset 0 0 0 9999px rgba(255,255,255,0) }
+  [data-theme="light"] label{color:#334155}
+  input,select,textarea{width:100%;padding:12px 13px;border-radius:12px;border:1px solid #233055;background:#0d1220;color:var(--text);outline:none;transition:.18s}
+  [data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] textarea{background:#fff;border-color:#d6deef;color:#0e1220}
   input:focus,textarea:focus,select:focus{border-color:#4060ff;box-shadow:0 0 0 3px rgba(64,96,255,.12)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media (max-width:720px){.row{grid-template-columns:1fr}}
   .pill{display:inline-flex;gap:8px;align-items:center;background:#12162b;border:1px solid #26335e;border-radius:999px;padding:6px 10px;font-size:.9rem}
+  [data-theme="light"] .pill{background:#f3f6ff;border-color:#dbe4fb}
   .list{display:grid;gap:12px}
   .prod{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}
   .prod img{width:110px;height:110px;object-fit:cover;border-radius:14px;border:1px solid #26335e;background:#0e1018}
+  [data-theme="light"] .prod img{border-color:#e6eaf7;background:#f7f8fd}
   .table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;border:1px solid #27335f}
+  [data-theme="light"] .table{border-color:#e6eaf7}
   .table th,.table td{padding:10px;border-bottom:1px solid #27335f;text-align:right}
+  [data-theme="light"] .table th,[data-theme="light"] .table td{border-bottom-color:#e6eaf7}
   .table th{background:#12162b;color:#cfd6e4}
+  [data-theme="light"] .table th{background:#f4f7ff;color:#334155}
   .empty{border:1px dashed #2a355f;border-radius:12px;padding:14px;text-align:center;color:#97a5c4}
+  [data-theme="light"] .empty{border-color:#cad5f5;color:#6b7280}
   footer{opacity:.75;text-align:center;padding:28px 0}
   .tabs{display:flex;gap:8px;margin:8px 0 14px;flex-wrap:wrap}
   .tabs .btn{padding:8px 10px}
   .actions{display:flex;gap:8px;flex-wrap:wrap}
-  /* Skeleton */
   .skeleton{background:linear-gradient(90deg,#0f1426 0%,#18213e 50%,#0f1426 100%);background-size:200% 100%;animation:sk 1.2s infinite}
   @keyframes sk{to{background-position:-200% 0}}
-  /* Toasts */
-  .toast{
-    position:fixed;bottom:18px;inset-inline:0;display:grid;justify-items:center;z-index:60;pointer-events:none
-  }
-  .toast .msg{
-    pointer-events:auto;min-width:220px;max-width:90%;
-    background:#10162a;border:1px solid #26335e;box-shadow:var(--shadow);
-    color:var(--text);padding:10px 14px;border-radius:12px;display:flex;gap:10px;align-items:center;
-    animation:pop .2s ease-out
-  }
-  .msg.ok{border-color:#244e35}
-  .msg.warn{border-color:#5a441f}
-  .msg.danger{border-color:#5a2222}
+  .toast{position:fixed;bottom:18px;inset-inline:0;display:grid;justify-items:center;z-index:60;pointer-events:none}
+  .toast .msg{pointer-events:auto;min-width:220px;max-width:90%;background:#10162a;border:1px solid #26335e;box-shadow:var(--shadow);color:var(--text);padding:10px 14px;border-radius:12px;display:flex;gap:10px;align-items:center;animation:pop .2s ease-out}
+  .msg.ok{border-color:#244e35}.msg.warn{border-color:#5a441f}.msg.danger{border-color:#5a2222}
+  [data-theme="light"] .toast .msg{background:#ffffff;border-color:#e6eaf7}
   @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
-  /* View fade */
-  .view{opacity:0;transform:translateY(8px);transition:.18s}
-  .view.active{opacity:1;transform:none}
+  .view{opacity:0;transform:translateY(8px);transition:.18s}.view.active{opacity:1;transform:none}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .switch{display:inline-flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -109,15 +94,22 @@
   <div class="wrap hero">
     <div class="logo">
       <div class="badge">R</div>
-      <span>Renuar – חיפוש מק״ט & ניהול</span>
+      <span>Renuar – מערכת צוות</span>
     </div>
-    <nav>
-      <button class="btn ripple" onclick="showView('search')">🔎 חיפוש מוצר</button>
-      <button class="btn ripple" onclick="showView('shortage')">📝 רשימת חוסרים</button>
+    <nav class="toolbar">
+      <button class="btn ripple" type="button" onclick="showView('search')">🔎 חיפוש</button>
+      <button class="btn ripple" type="button" onclick="showView('shortage')">📝 חוסרים</button>
       <a class="btn ripple" href="https://www.renuar.co.il" target="_blank" rel="noopener">🛍 Renuar</a>
-      <button id="loginBtn" class="btn primary ripple" onclick="showView('auth')">👤 כניסה</button>
-      <button id="adminBtn" class="btn ripple" style="display:none" onclick="showView('admin')">🛠 ניהול</button>
-      <button id="logoutBtn" class="btn ripple" style="display:none" onclick="logout()">🚪 יציאה</button>
+      <button id="loginBtn" class="btn primary ripple" type="button" onclick="showView('auth')">👤 כניסה</button>
+      <button id="adminBtn" class="btn ripple" type="button" style="display:none" onclick="showView('admin')">🛠 ניהול</button>
+      <button id="logoutBtn" class="btn ripple" type="button" style="display:none" onclick="logout()">🚪 יציאה</button>
+      <div class="switch pill">
+        <span>מצב</span>
+        <select id="themeSelect" onchange="switchTheme(this.value)">
+          <option value="dark">כהה</option>
+          <option value="light">בהיר</option>
+        </select>
+      </div>
     </nav>
   </div>
 </header>
@@ -129,26 +121,32 @@
       <h2>🔎 חיפוש מוצר</h2>
       <p class="muted">הקלד <b>שם</b> או <b>מק״ט</b> ולחץ חפש</p>
       <div class="row">
-        <div>
-          <label>שם פריט</label>
-          <input id="qName" placeholder="לדוגמה: חולצת פולו" />
-        </div>
-        <div>
-          <label>מק״ט</label>
-          <input id="qSku" placeholder="לדוגמה: M250216" />
-        </div>
+        <div><label>שם פריט</label><input id="qName" placeholder="לדוגמה: חולצת פולו"/></div>
+        <div><label>מק״ט</label><input id="qSku" placeholder="לדוגמה: M250216"/></div>
       </div>
       <div class="actions" style="margin-top:10px">
-        <button class="btn primary ripple" onclick="search()">חפש</button>
-        <button class="btn ripple ghost" onclick="clearSearch()">נקה</button>
+        <button class="btn primary ripple" type="button" onclick="search()">חפש</button>
+        <button class="btn ripple ghost" type="button" onclick="clearSearch()">נקה</button>
         <span class="pill">תוצאות מקומיות</span>
       </div>
     </div>
-
     <div class="card" id="searchResults">
-      <h3>תוצאות</h3>
+      <div class="toolbar" style="justify-content:space-between">
+        <h3>תוצאות</h3>
+        <div class="row" style="grid-template-columns:1fr 1fr;gap:8px;max-width:420px">
+          <select id="filterCat">
+            <option value="">כל הקטגוריות</option>
+            <option>חולצות</option><option>ג׳ינסים</option><option>נעליים</option>
+          </select>
+          <select id="filterPrice">
+            <option value="">כל המחירים</option>
+            <option value="1">עד ₪100</option>
+            <option value="2">₪100–₪200</option>
+            <option value="3">מעל ₪200</option>
+          </select>
+        </div>
+      </div>
       <div id="resultsList" class="list">
-        <!-- Skeletons -->
         <div class="card skeleton" style="height:92px;border-radius:12px"></div>
         <div class="card skeleton" style="height:92px;border-radius:12px"></div>
       </div>
@@ -161,15 +159,14 @@
       <h2>📝 רשימת חוסרים</h2>
       <p class="muted">כתוב כאן מה חסר במחסן / בחנות. הדיווח יופיע אצל האדמין.</p>
       <div class="row">
-        <div><label>שם פריט חסר</label><input id="shortItem" placeholder="לדוגמה: שקיות" /></div>
-        <div><label>כמות דרושה</label><input id="shortQty" type="number" min="1" placeholder="50" /></div>
+        <div><label>שם פריט חסר</label><input id="shortItem" placeholder="לדוגמה: שקיות"/></div>
+        <div><label>כמות דרושה</label><input id="shortQty" type="number" min="1" placeholder="50"/></div>
       </div>
       <div class="row">
-        <div><label>הערות</label><input id="shortNote" placeholder="צבע, מידה, ספק..." /></div>
-        <div style="display:flex;align-items:end"><button class="btn primary ripple" onclick="submitShortage()">שלח</button></div>
+        <div><label>הערות</label><input id="shortNote" placeholder="צבע, מידה, ספק..."/></div>
+        <div style="display:flex;align-items:end"><button class="btn primary ripple" type="button" onclick="submitShortage()">שלח</button></div>
       </div>
     </div>
-
     <div class="card">
       <h3>דיווחים אחרונים</h3>
       <div id="shortUserList" class="list"></div>
@@ -181,20 +178,15 @@
     <div class="card">
       <h2>👤 כניסה</h2>
       <div class="row">
-        <div><label>שם משתמש</label><input id="loginUser" placeholder="לדוגמה: admin או user" /></div>
-        <div><label>סיסמה</label><input id="loginPass" type="password" placeholder="••••••••" /></div>
+        <div><label>שם משתמש</label><input id="loginUser" placeholder="admin או user"/></div>
+        <div><label>סיסמה</label><input id="loginPass" type="password" placeholder="••••••••"/></div>
       </div>
       <div class="actions" style="margin-top:10px">
-        <button class="btn primary ripple" onclick="login()">כניסה</button>
-        <button class="btn ripple" onclick="showView('register')">הרשמה</button>
+        <button class="btn primary ripple" type="button" onclick="login()">כניסה</button>
+        <button class="btn ripple" type="button" onclick="showView('register')">הרשמה</button>
       </div>
       <p class="muted" style="margin-top:10px">⚠ דמו מקומי (localStorage) – אל תכניס סיסמה אמיתית.</p>
-    </div>
-
-    <div class="card">
-      <h3>פרטי אדמין ברירת מחדל</h3>
-      <div class="pill">שם משתמש: <b>admin</b></div>
-      <div class="pill">סיסמה: <b>1234</b></div>
+      <div class="pill">אדמין ברירת מחדל: <b>admin / 1234</b></div>
     </div>
   </section>
 
@@ -203,10 +195,16 @@
     <div class="card">
       <h2>🆕 הרשמה</h2>
       <div class="row">
-        <div><label>שם משתמש</label><input id="regUser" placeholder="לדוגמה: user123" /></div>
-        <div><label>סיסמה</label><input id="regPass" type="password" placeholder="••••••••" /></div>
+        <div><label>שם משתמש</label><input id="regUser" placeholder="user123"/></div>
+        <div><label>סיסמה</label><input id="regPass" type="password" placeholder="••••••••"/></div>
       </div>
-      <div style="margin-top:10px"><button class="btn primary ripple" onclick="register()">צור חשבון</button></div>
+      <div class="row">
+        <div><label>שם מלא</label><input id="regFull" placeholder="שם פרטי + משפחה"/></div>
+        <div><label>תפקיד</label>
+          <select id="regRole"><option value="user">מוכר</option><option value="shift">מנהל משמרת</option><option value="admin">אדמין</option></select>
+        </div>
+      </div>
+      <div style="margin-top:10px"><button class="btn primary ripple" type="button" onclick="register()">צור חשבון</button></div>
     </div>
   </section>
 
@@ -215,31 +213,38 @@
     <div class="card">
       <h2>🛠 ניהול</h2>
       <div class="tabs">
-        <button class="btn ripple" onclick="setAdminTab('products')">🗂 מוצרים</button>
-        <button class="btn ripple" onclick="setAdminTab('inventory')">📦 מלאי</button>
-        <button class="btn ripple" onclick="setAdminTab('shortages')">📝 חוסרים</button>
-        <button class="btn ripple" onclick="setAdminTab('users')">👥 משתמשים</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('products')">🗂 מוצרים</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('inventory')">📦 מלאי</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('sales')">💸 מכירות</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('goals')">🎯 יעדים</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('time')">🕒 שעות</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('shortages')">📝 חוסרים</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('users')">👥 משתמשים</button>
+        <button class="btn ripple" type="button" onclick="setAdminTab('reports')">📊 דוחות</button>
       </div>
 
       <!-- PRODUCTS -->
       <div id="admin-products">
         <h3>הוספת / עריכת מוצר</h3>
         <div class="row">
-          <div><label>שם פריט</label><input id="pName" placeholder="חולצת פולו" /></div>
-          <div><label>מק״ט (ייחודי)</label><input id="pSku" placeholder="M250216" /></div>
+          <div><label>שם פריט</label><input id="pName" placeholder="חולצת פולו"/></div>
+          <div><label>מק״ט (ייחודי)</label><input id="pSku" placeholder="M250216"/></div>
         </div>
         <div class="row">
-          <div><label>מחיר ₪</label><input id="pPrice" type="number" min="0" step="0.01" placeholder="119.90" /></div>
-          <div><label>קישור תמונה (URL)</label><input id="pImg" placeholder="https://example.com/img.jpg" /></div>
+          <div><label>קטגוריה</label>
+            <select id="pCat"><option>חולצות</option><option>ג׳ינסים</option><option>נעליים</option><option>אחר</option></select>
+          </div>
+          <div><label>מחיר ₪</label><input id="pPrice" type="number" min="0" step="0.01" placeholder="119.90"/></div>
         </div>
+        <div><label>קישור תמונה (URL)</label><input id="pImg" placeholder="https://example.com/img.jpg"/></div>
         <div class="actions" style="margin-top:10px">
-          <button class="btn primary ripple" onclick="saveProduct()">שמירה</button>
-          <button class="btn ripple" onclick="clearProductForm()">נקה</button>
-          <button class="btn ripple" onclick="exportData()">📤 יצוא JSON</button>
+          <button class="btn primary ripple" type="button" onclick="saveProduct()">שמירה</button>
+          <button class="btn ripple" type="button" onclick="clearProductForm()">נקה</button>
+          <button class="btn ripple" type="button" onclick="exportData()">📤 יצוא JSON</button>
           <label class="btn ripple" for="importFile">📥 יבוא JSON</label>
-          <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)" />
+          <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)"/>
+          <button class="btn ripple" type="button" onclick="exportCSV()">📄 יצוא CSV</button>
         </div>
-
         <h3 style="margin-top:18px">כל המוצרים</h3>
         <div id="adminProdList" class="list"></div>
       </div>
@@ -248,24 +253,78 @@
       <div id="admin-inventory" style="display:none">
         <h3>ניהול מלאי</h3>
         <div class="row">
-          <div><label>מק״ט</label><input id="invSku" placeholder="M250216" /></div>
-          <div><label>כמות</label><input id="invQty" type="number" min="0" placeholder="0" /></div>
+          <div><label>מק״ט</label><input id="invSku" placeholder="M250216"/></div>
+          <div><label>כמות</label><input id="invQty" type="number" min="0" placeholder="0"/></div>
         </div>
         <div class="row">
-          <div><label>סניף/מיקום</label><input id="invLoc" placeholder="וילג' מול חדרה" /></div>
-          <div><label>מידה / צבע</label><input id="invAttr" placeholder="S / שחור" /></div>
+          <div><label>סניף/מיקום</label><input id="invLoc" placeholder="וילג' מול חדרה"/></div>
+          <div><label>מידה / צבע</label><input id="invAttr" placeholder="S / שחור"/></div>
         </div>
         <div class="actions" style="margin-top:10px">
-          <button class="btn primary ripple" onclick="saveInventory()">שמירת מלאי</button>
-          <button class="btn ripple" onclick="clearInvForm()">נקה</button>
+          <button class="btn primary ripple" type="button" onclick="saveInventory()">שמירת מלאי</button>
+          <button class="btn ripple" type="button" onclick="clearInvForm()">נקה</button>
         </div>
-
         <h3 style="margin-top:18px">רשומת מלאי</h3>
         <table class="table" id="invTable">
           <thead><tr><th>מק״ט</th><th>כמות</th><th>מיקום</th><th>מידה/צבע</th><th>עודכן</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
         <div id="invEmpty" class="empty" style="display:none">אין רשומות מלאי</div>
+      </div>
+
+      <!-- SALES -->
+      <div id="admin-sales" style="display:none">
+        <h3>רישום מכירה</h3>
+        <div class="row">
+          <div><label>עובד</label><select id="saleUser"></select></div>
+          <div><label>מק״ט</label><input id="saleSku" placeholder="M250216"/></div>
+        </div>
+        <div class="row">
+          <div><label>כמות</label><input id="saleQty" type="number" min="1" value="1"/></div>
+          <div><label>סה״כ (₪)</label><input id="saleTotal" type="number" min="0" step="0.01" placeholder="0.00"/></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn primary ripple" type="button" onclick="saveSale()">שמור מכירה</button>
+          <button class="btn ripple" type="button" onclick="clearSaleForm()">נקה</button>
+        </div>
+        <h3 style="margin-top:18px">מכירות אחרונות</h3>
+        <table class="table" id="salesTable">
+          <thead><tr><th>תאריך</th><th>עובד</th><th>מק״ט</th><th>כמות</th><th>סה״כ</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="salesEmpty" class="empty" style="display:none">אין מכירות</div>
+      </div>
+
+      <!-- GOALS -->
+      <div id="admin-goals" style="display:none">
+        <h3>ניהול יעדים</h3>
+        <div class="row">
+          <div><label>יעד יומי (₪)</label><input id="goalDaily" type="number" min="0" step="1" placeholder="2000"/></div>
+          <div><label>יעד שבועי (₪)</label><input id="goalWeekly" type="number" min="0" step="1" placeholder="12000"/></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn primary ripple" type="button" onclick="saveGoals()">שמור יעדים</button>
+        </div>
+        <div class="pill" id="goalsProgress">התקדמות: —</div>
+      </div>
+
+      <!-- TIME CLOCK -->
+      <div id="admin-time" style="display:none">
+        <h3>שעות עבודה</h3>
+        <div class="row">
+          <div><label>עובד</label><select id="timeUser"></select></div>
+          <div class="actions" style="align-items:end">
+            <button class="btn primary ripple" type="button" onclick="clockIn()">Clock-in</button>
+            <button class="btn ripple" type="button" onclick="clockOut()">Clock-out</button>
+            <button class="btn ripple" type="button" onclick="exportTimesCSV()">📄 יצוא שעות</button>
+          </div>
+        </div>
+        <h3 style="margin-top:18px">רשומות שעות</h3>
+        <table class="table" id="timeTable">
+          <thead><tr><th>עובד</th><th>כניסה</th><th>יציאה</th><th>סה״כ (ש׳)</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="timeEmpty" class="empty" style="display:none">אין רשומות</div>
       </div>
 
       <!-- SHORTAGES (ADMIN) -->
@@ -282,184 +341,130 @@
       <div id="admin-users" style="display:none">
         <h3>משתמשים</h3>
         <table class="table" id="usersTable">
-          <thead><tr><th>שם משתמש</th><th>תפקיד</th><th>נוצר בתאריך</th><th></th></tr></thead>
+          <thead><tr><th>שם משתמש</th><th>שם מלא</th><th>תפקיד</th><th>נוצר</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
+        <div class="pill">לרישום משתמש חדש → "הרשמה" בתפריט</div>
       </div>
-    </div>
 
-    <div class="card">
-      <h3>הערות אבטחה</h3>
-      <ul class="muted">
-        <li>דמו מקומי (localStorage) בלבד.</li>
-        <li>לפרודקשן: מומלץ Backend (Firebase / Node/Express + DB).</li>
-      </ul>
+      <!-- REPORTS -->
+      <div id="admin-reports" style="display:none">
+        <h3>דוחות וגרפים</h3>
+        <div class="row">
+          <div><label>טווח ימים (אחורנית)</label><input id="repDays" type="number" min="1" value="7"/></div>
+          <div class="actions" style="align-items:end">
+            <button class="btn primary ripple" type="button" onclick="buildReport()">חשב</button>
+          </div>
+        </div>
+        <canvas id="chart" width="600" height="280" style="width:100%;border:1px solid var(--ring);border-radius:12px;margin-top:10px;background:#0e1324"></canvas>
+        <div id="repSummary" class="pill" style="margin-top:10px">—</div>
+      </div>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap muted">© <span id="year"></span> Renuar Demo – גרסת הדגמה מקומית</div>
-</footer>
-
+<footer><div class="wrap muted">© <span id="year"></span> Renuar Demo – גרסת הדגמה מקומית</div></footer>
 <div class="toast" id="toast"></div>
+
 <script>
-// ------ PATCH: اجعل الدوال مرئية عالمياً + حماية بسيطة ------
-
-// لو crypto.randomUUID غير متاح
-if (!('crypto' in window) || typeof crypto.randomUUID !== 'function') {
-  window.crypto = window.crypto || {};
-  crypto.randomUUID = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
-}
-
-// تأكد أن click على الأزرار ما يعمل submit داخل فورم
-document.querySelectorAll('button').forEach(btn=>{
-  if(!btn.hasAttribute('type')) btn.setAttribute('type','button');
-});
-
-// اجعل كل الدوال المستعملة في onclick متاحة على window
-[
-  'showView','setAdminTab',
-  'login','logout','register',
-  'search','clearSearch',
-  'saveProduct','renderAdminProducts','fillProductForm','deleteProduct','clearProductForm',
-  'saveInventory','renderInventory','delInv','clearInvForm',
-  'submitShortage','renderShortUserFeed','renderAdminShortages','resolveShortage',
-  'renderUsers','exportData','importData','renderAdmin'
-].forEach(fn=>{
-  if (typeof window[fn] !== 'function' && typeof eval(typeof ${fn} === 'function' && ${fn}) === 'function') {
-    // no-op: فقط للتوافق
-  }
-  try { window[fn] = window[fn] || eval(fn); } catch(e) {}
-});
-
-// إعادة تفعيل مستمعات الـ ripple بعد التغييرات
-(function rebindRipple(){
-  const ripple = (e)=>{
-    const b = e.currentTarget;
-    const r = document.createElement('span');
-    r.className = 'rp';
-    const rect = b.getBoundingClientRect();
-    const d = Math.max(rect.width, rect.height);
-    r.style.width = r.style.height = d + 'px';
-    const x = (e.clientX||0) - rect.left - d/2;
-    const y = (e.clientY||0) - rect.top  - d/2;
-    r.style.left = x + 'px'; r.style.top = y + 'px';
-    b.appendChild(r);
-    setTimeout(()=> r.remove(), 600);
-  };
-  document.querySelectorAll('.ripple').forEach(b=>{
-    b.removeEventListener('click', ripple); // منع التكرار
-    b.addEventListener('click', ripple);
-  });
-})();
-
-// لو في خطأ يمنع تشغيل السكربت، اطبع للكونسول
-window.addEventListener('error', (e)=> {
-  console.warn('JS Error:', e.message);
-});
-</script>
-<script>
-/* ---------- Utils ---------- */
+/* ===== Utils & State ===== */
+(function ensureUUID(){ if(!('crypto' in window) || !crypto.randomUUID){ window.crypto = window.crypto || {}; crypto.randomUUID = ()=>'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2); } })();
+const $ = s=>document.querySelector(s);
 const LS={get:(k,def)=>{try{return JSON.parse(localStorage.getItem(k))??def}catch{return def}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
-const $$=s=>document.querySelector(s);
-const $on=(el,ev,cb)=>el.addEventListener(ev,cb);
-const toast=(t,type='ok')=>{
-  const box=$$('#toast'); const m=document.createElement('div'); m.className='msg '+type;
-  m.innerHTML=t; box.appendChild(m); setTimeout(()=>{m.remove();},2500);
-};
-const ripple=(e)=>{
-  const b=e.currentTarget; const r=document.createElement('span'); r.className='rp';
-  const rect=b.getBoundingClientRect(); const d=Math.max(rect.width,rect.height);
-  r.style.width=r.style.height=d+'px';
-  const x=e.clientX-rect.left-d/2, y=e.clientY-rect.top-d/2;
-  r.style.left=x+'px'; r.style.top=y+'px';
-  b.appendChild(r); setTimeout(()=>r.remove(),600);
-};
-document.querySelectorAll('.ripple').forEach(b=>$on(b,'click',ripple));
+const toast=(txt,type='ok')=>{ const box=$("#toast"); const m=document.createElement('div'); m.className='msg '+type; m.innerHTML=txt; box.appendChild(m); setTimeout(()=>m.remove(),2500); };
+const ripple=(e)=>{ const b=e.currentTarget; const r=document.createElement('span'); r.className='rp'; const rect=b.getBoundingClientRect(); const d=Math.max(rect.width,rect.height); r.style.width=r.style.height=d+'px'; r.style.left=(e.clientX-rect.left-d/2)+'px'; r.style.top=(e.clientY-rect.top-d/2)+'px'; b.appendChild(r); setTimeout(()=>r.remove(),600); };
+document.addEventListener('click',e=>{ if(e.target.classList.contains('ripple')) ripple(e); });
 
-/* ---------- Seed ---------- */
+/* Theme */
+function switchTheme(v){ document.documentElement.setAttribute('data-theme', v==='light'?'light':'dark'); LS.set('theme', v); }
+switchTheme(LS.get('theme','dark')); $("#themeSelect").value = LS.get('theme','dark');
+
+/* Seed */
 (function seed(){
-  if(!LS.get('users')) LS.set('users',[{username:'admin',pass:'1234',role:'admin',created:Date.now()}]);
+  if(!LS.get('users')) LS.set('users',[{username:'admin',full:'מנהל מערכת',pass:'1234',role:'admin',created:Date.now()}]);
   if(!LS.get('products')) LS.set('products',[
-    {name:'חולצת פולו אמבר', sku:'M250216', price:119.90, img:''},
-    {name:'ג׳ינס לבן רחב', sku:'G199990', price:199.90, img:''},
-    {name:'סניקרס Gaimi חום', sku:'S149900', price:149.90, img:''},
+    {name:'חולצת פולו אמבר', sku:'M250216', cat:'חולצות', price:119.90, img:''},
+    {name:'ג׳ינס לבן רחב', sku:'G199990', cat:'ג׳ינסים', price:199.90, img:''},
+    {name:'סניקרס Gaimi חום', sku:'S149900', cat:'נעליים', price:149.90, img:''},
   ]);
   if(!LS.get('inventory')) LS.set('inventory',[]);
+  if(!LS.get('sales')) LS.set('sales',[]);
+  if(!LS.get('goals')) LS.set('goals',{daily:2000,weekly:12000});
+  if(!LS.get('time')) LS.set('time',[]); // {id,user,in, out}
   if(!LS.get('shortages')) LS.set('shortages',[]);
   if(!LS.get('shortUserFeed')) LS.set('shortUserFeed',[]);
-})(); document.getElementById('year').textContent=new Date().getFullYear();
+})();
+document.getElementById('year').textContent=new Date().getFullYear();
 
-/* ---------- Router with animation ---------- */
+/* ===== Router ===== */
 const views=['search','shortage','auth','register','admin'];
 function showView(name){
   views.forEach(id=>{
-    const el=document.getElementById('view-'+id);
+    const el=$("#view-"+id);
     if(!el) return;
-    const active = (id===name);
-    el.style.display=active?'grid':'none';
-    setTimeout(()=> el.classList.toggle('active',active), active?10:0);
+    const on = (id===name);
+    el.style.display = on?'grid':'none';
+    setTimeout(()=> el.classList.toggle('active',on), on?10:0);
   });
-  if(name==='search'){ renderResults([]) }
-  if(name==='shortage'){ renderShortUserFeed() }
-  if(name==='admin'){ ensureAdmin(); renderAdmin() }
+  if(name==='search') { renderResults([]); }
+  if(name==='shortage'){ renderShortUserFeed(); }
+  if(name==='admin'){ ensureAdmin(); renderAdmin(); }
 }
 
-/* ---------- Auth ---------- */
-function currentUser(){return LS.get('currentUser',null)}
+/* ===== Auth ===== */
+function currentUser(){ return LS.get('currentUser',null) }
 function updateAuthUI(){
   const cu=currentUser();
-  $$('#loginBtn').style.display=cu?'none':'inline-block';
-  $$('#logoutBtn').style.display=cu?'inline-block':'none';
-  $$('#adminBtn').style.display=(cu&&cu.role==='admin')?'inline-block':'none';
+  $("#loginBtn").style.display = cu?'none':'inline-block';
+  $("#logoutBtn").style.display = cu?'inline-block':'none';
+  $("#adminBtn").style.display  = (cu && cu.role==='admin')?'inline-block':'none';
 }
-function ensureAdmin(){const cu=currentUser(); if(!cu||cu.role!=='admin'){alert('נדרשת כניסת אדמין'); showView('auth');}}
+function ensureAdmin(){ const cu=currentUser(); if(!cu || cu.role!=='admin'){ alert('נדרשת כניסת אדמין'); showView('auth'); } }
 function login(){
-  const u=$$('#loginUser').value.trim(), p=$$('#loginPass').value;
-  const users=LS.get('users',[]), found=users.find(x=>x.username===u&&x.pass===p);
-  if(!found){toast('שם משתמש או סיסמה לא נכונים','danger');return}
-  LS.set('currentUser',{username:found.username,role:found.role}); updateAuthUI();
-  toast('ברוך הבא, '+u,'ok'); showView(found.role==='admin'?'admin':'search');
+  const u=$("#loginUser").value.trim(), p=$("#loginPass").value;
+  const users=LS.get('users',[]), found=users.find(x=>x.username===u && x.pass===p);
+  if(!found){ toast('שם משתמש או סיסמה לא נכונים','danger'); return }
+  LS.set('currentUser',{username:found.username, full:found.full||found.username, role:found.role});
+  updateAuthUI(); toast('ברוך הבא, '+(found.full||u),'ok'); showView(found.role==='admin'?'admin':'search');
 }
-function logout(){localStorage.removeItem('currentUser');updateAuthUI();toast('התנתקת','warn');showView('auth')}
+function logout(){ localStorage.removeItem('currentUser'); updateAuthUI(); toast('התנתקת','warn'); showView('auth'); }
 function register(){
-  const u=$$('#regUser').value.trim(), p=$$('#regPass').value;
-  if(!u||!p){toast('הכנס שם וסיסמה','warn');return}
-  let users=LS.get('users',[]); if(users.some(x=>x.username===u)){toast('שם תפוס','danger');return}
-  users.push({username:u,pass:p,role:'user',created:Date.now()}); LS.set('users',users);
-  toast('נוצר חשבון חדש','ok'); showView('auth');
+  const u=$("#regUser").value.trim(), p=$("#regPass").value, full=$("#regFull").value.trim(), role=$("#regRole").value;
+  if(!u||!p){ toast('הכנס שם וסיסמה','warn'); return }
+  let users=LS.get('users',[]); if(users.some(x=>x.username===u)){ toast('שם תפוס','danger'); return }
+  users.push({username:u, full:full||u, pass:p, role:role||'user', created:Date.now()});
+  LS.set('users',users); toast('נוצר חשבון חדש','ok'); showView('auth');
 }
 updateAuthUI();
 
-/* ---------- Search ---------- */
-const searchDebounced = (()=>{let t; return f=>{clearTimeout(t); t=setTimeout(f,180)}})();
-$on($$('#qName'),'keydown',(e)=>{if(e.key==='Enter') search()});
-$on($$('#qSku'),'keydown',(e)=>{if(e.key==='Enter') search()});
-function clearSearch(){ $$('#qName').value=''; $$('#qSku').value=''; renderResults([]); }
+/* ===== Search ===== */
+function clearSearch(){ $("#qName").value=''; $("#qSku").value=''; renderResults([]); }
 function search(){
-  const name=$$('#qName').value.trim().toLowerCase();
-  const sku =$$('#qSku').value.trim().toLowerCase();
+  const name=$("#qName").value.trim().toLowerCase();
+  const sku =$("#qSku").value.trim().toLowerCase();
+  const cat =$("#filterCat").value;
+  const priceRange=$("#filterPrice").value;
   const prods=LS.get('products',[]);
-  searchDebounced(()=>{
-    const res=prods.filter(p=>{
-      const byName=name? p.name.toLowerCase().includes(name):true;
-      const bySku =sku? (p.sku.toLowerCase()===sku||p.sku.toLowerCase().includes(sku)):true;
-      return byName && bySku;
-    });
-    renderResults(res);
+  const res=prods.filter(p=>{
+    const byName= name? p.name.toLowerCase().includes(name):true;
+    const bySku = sku? (p.sku.toLowerCase()===sku || p.sku.toLowerCase().includes(sku)):true;
+    const byCat = cat? p.cat===cat : true;
+    const byPrice = !priceRange ? true :
+      (priceRange==='1'? p.price<=100 : priceRange==='2'? (p.price>100 && p.price<=200) : p.price>200);
+    return byName && bySku && byCat && byPrice;
   });
+  renderResults(res);
 }
 function renderResults(arr){
-  const wrap=$$('#resultsList'); wrap.innerHTML='';
-  if(!arr||arr.length===0){wrap.innerHTML='<div class="empty">אין תוצאות… נסה שם/מק״ט אחר</div>';return}
+  const wrap=$("#resultsList"); wrap.innerHTML='';
+  if(!arr || arr.length===0){ wrap.innerHTML='<div class="empty">אין תוצאות… נסה שם/מק״ט אחר</div>'; return }
   arr.forEach(p=>{
     const card=document.createElement('div'); card.className='card';
     const img=p.img||'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22110%22 height=%22110%22><rect width=%22110%22 height=%22110%22 fill=%22%2313161f%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%23aab2c5%22 font-size=%2212%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>no image</text></svg>';
-    card.innerHTML=`<div class="prod">
+    card.innerHTML = `<div class="prod">
       <img src="${img}" alt="תמונה"/>
       <div>
-        <div class="pill">מק״ט: <b>${p.sku}</b></div>
+        <div class="pill">מק״ט: <b>${p.sku}</b> • ${p.cat||'–'}</div>
         <h3 style="margin-top:6px">${p.name}</h3>
         <div style="margin-top:6px" class="pill">₪ ${Number(p.price).toFixed(2)}</div>
       </div>
@@ -468,138 +473,255 @@ function renderResults(arr){
   });
 }
 
-/* ---------- Admin Tabs ---------- */
+/* ===== Admin Tabs ===== */
 function setAdminTab(tab){
-  ['products','inventory','shortages','users'].forEach(id=>{
-    document.getElementById('admin-'+id).style.display=(id===tab)?'block':'none';
+  ['products','inventory','sales','goals','time','shortages','users','reports'].forEach(id=>{
+    const el=$("#admin-"+id);
+    if(el) el.style.display = (id===tab)?'block':'none';
   });
   if(tab==='products') renderAdminProducts();
   if(tab==='inventory') renderInventory();
+  if(tab==='sales') { fillUsersSelects(); renderSales(); }
+  if(tab==='goals') renderGoals();
+  if(tab==='time')  { fillUsersSelects(); renderTime(); }
   if(tab==='shortages') renderAdminShortages();
   if(tab==='users') renderUsers();
 }
 
-/* ---------- Admin: Products ---------- */
+/* ===== Products ===== */
 function saveProduct(){
-  const name=$$('#pName').value.trim(), sku=$$('#pSku').value.trim(), price=parseFloat($$('#pPrice').value||'0'), img=$$('#pImg').value.trim();
-  if(!name||!sku){toast('שם ומק״ט נדרשים','warn');return}
-  const prods=LS.get('products',[]); const idx=prods.findIndex(p=>p.sku.toLowerCase()===sku.toLowerCase());
-  if(idx>-1) prods[idx]={...prods[idx],name,price,img}; else prods.push({name,sku,price,img});
-  LS.set('products',prods); renderAdminProducts(); clearProductForm(); toast('נשמר','ok');
+  const name=$("#pName").value.trim(), sku=$("#pSku").value.trim(), cat=$("#pCat").value, price=parseFloat($("#pPrice").value||'0'), img=$("#pImg").value.trim();
+  if(!name||!sku){ toast('שם ומק״ט נדרשים','warn'); return }
+  const prods=LS.get('products',[]); const i=prods.findIndex(p=>p.sku.toLowerCase()===sku.toLowerCase());
+  if(i>-1) prods[i]={...prods[i],name,cat,price,img}; else prods.push({name,sku,cat,price,img});
+  LS.set('products',prods); renderAdminProducts(); clearProductForm(); toast('מוצר נשמר','ok');
 }
 function renderAdminProducts(){
-  const wrap=$$('#adminProdList'); wrap.innerHTML='';
-  const prods=LS.get('products',[]); if(prods.length===0){wrap.innerHTML='<div class="empty">אין מוצרים</div>';return}
+  const wrap=$("#adminProdList"); wrap.innerHTML='';
+  const prods=LS.get('products',[]); if(prods.length===0){ wrap.innerHTML='<div class="empty">אין מוצרים</div>'; return }
   prods.forEach(p=>{
     const div=document.createElement('div'); div.className='card';
     const img=p.img||'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22110%22 height=%22110%22><rect width=%22110%22 height=%22110%22 fill=%22%2313161f%22/></svg>';
     div.innerHTML=`<div class="prod">
       <img src="${img}" alt="">
       <div>
-        <div class="pill">SKU: <b>${p.sku}</b></div>
+        <div class="pill">SKU: <b>${p.sku}</b> • ${p.cat||'–'}</div>
         <h3 style="margin:6px 0">${p.name}</h3>
         <div class="pill">₪ ${Number(p.price).toFixed(2)}</div>
         <div class="actions" style="margin-top:8px">
-          <button class="btn ripple" onclick='fillProductForm(${JSON.stringify(JSON.stringify(p))})'>ערוך</button>
-          <button class="btn ripple" onclick='deleteProduct("${p.sku}")'>מחק</button>
+          <button class="btn ripple" type="button" onclick='fillProductForm(${JSON.stringify(JSON.stringify(p))})'>ערוך</button>
+          <button class="btn ripple" type="button" onclick='deleteProduct("${p.sku}")'>מחק</button>
         </div>
       </div>
     </div>`;
     wrap.appendChild(div);
   });
 }
-function fillProductForm(jsonStr){
-  const p=JSON.parse(jsonStr);
-  $$('#pName').value=p.name; $$('#pSku').value=p.sku; $$('#pPrice').value=p.price; $$('#pImg').value=p.img||'';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function deleteProduct(sku){
-  if(!confirm('למחוק מוצר?')) return;
-  const prods=LS.get('products',[]).filter(p=>p.sku!==sku); LS.set('products',prods); renderAdminProducts(); toast('נמחק','ok');
-}
-function clearProductForm(){['pName','pSku','pPrice','pImg'].forEach(id=> $$('#'+id).value='')}
+function fillProductForm(json){ const p=JSON.parse(json); $("#pName").value=p.name; $("#pSku").value=p.sku; $("#pCat").value=p.cat||'אחר'; $("#pPrice").value=p.price; $("#pImg").value=p.img||''; window.scrollTo({top:0,behavior:'smooth'}); }
+function deleteProduct(sku){ if(!confirm('למחוק מוצר?')) return; const prods=LS.get('products',[]).filter(p=>p.sku!==sku); LS.set('products',prods); renderAdminProducts(); toast('נמחק','ok'); }
+function clearProductForm(){ ['pName','pSku','pPrice','pImg'].forEach(id=> $("#"+id).value=''); $("#pCat").value='אחר'; }
 
-/* ---------- Admin: Inventory ---------- */
+/* ===== Inventory ===== */
 function saveInventory(){
-  const sku=$$('#invSku').value.trim(), qty=parseInt($$('#invQty').value||'0',10), loc=$$('#invLoc').value.trim(), attr=$$('#invAttr').value.trim();
-  if(!sku){toast('מק״ט נדרש','warn');return} if(qty<0||Number.isNaN(qty)){toast('כמות לא תקינה','warn');return}
-  let inv=LS.get('inventory',[]); const idx=inv.findIndex(r=>r.sku.toLowerCase()===sku.toLowerCase()&&(r.loc||'')===loc&&(r.attr||'')===attr); const now=Date.now();
-  if(idx>-1){inv[idx]={...inv[idx],qty,loc,attr,ts:now}} else {inv.push({id:crypto.randomUUID(),sku,qty,loc,attr,ts:now})}
+  const sku=$("#invSku").value.trim(), qty=parseInt($("#invQty").value||'0',10), loc=$("#invLoc").value.trim(), attr=$("#invAttr").value.trim();
+  if(!sku){ toast('מק״ט נדרש','warn'); return } if(qty<0||Number.isNaN(qty)){ toast('כמות לא תקינה','warn'); return }
+  let inv=LS.get('inventory',[]); const i=inv.findIndex(r=>r.sku.toLowerCase()===sku.toLowerCase()&&(r.loc||'')===loc&&(r.attr||'')===attr);
+  const now=Date.now(); if(i>-1){ inv[i]={...inv[i],qty,loc,attr,ts:now} } else { inv.push({id:crypto.randomUUID(),sku,qty,loc,attr,ts:now}) }
   LS.set('inventory',inv); renderInventory(); clearInvForm(); toast('מלאי נשמר','ok');
 }
 function renderInventory(){
-  const data=LS.get('inventory',[]), tbody=document.querySelector('#invTable tbody'), empty=$$('#invEmpty'); tbody.innerHTML='';
-  if(data.length===0){empty.style.display='block';return}else{empty.style.display='none'}
+  const data=LS.get('inventory',[]), tbody=$("#invTable tbody"), empty=$("#invEmpty"); tbody.innerHTML='';
+  if(data.length===0){ empty.style.display='block'; return } else { empty.style.display='none'; }
   data.slice().reverse().forEach(r=>{
-    const d=new Date(r.ts).toLocaleString('he-IL'); const tr=document.createElement('tr');
+    const tr=document.createElement('tr'); const d=new Date(r.ts).toLocaleString('he-IL');
     tr.innerHTML=`<td>${r.sku}</td><td>${r.qty}</td><td>${r.loc||''}</td><td>${r.attr||''}</td><td>${d}</td>
-      <td><button class="btn ripple" onclick="delInv('${r.id}')">מחק</button></td>`;
+      <td><button class="btn ripple" type="button" onclick="delInv('${r.id}')">מחק</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function delInv(id){let data=LS.get('inventory',[]).filter(x=>x.id!==id); LS.set('inventory',data); renderInventory(); toast('נמחק','ok')}
-function clearInvForm(){['invSku','invQty','invLoc','invAttr'].forEach(id=> $$('#'+id).value='')}
+function delInv(id){ let data=LS.get('inventory',[]).filter(x=>x.id!==id); LS.set('inventory',data); renderInventory(); toast('נמחק','ok'); }
+function clearInvForm(){ ['invSku','invQty','invLoc','invAttr'].forEach(id=> $("#"+id).value=''); }
 
-/* ---------- Shortages (user + admin) ---------- */
+/* ===== Sales ===== */
+function fillUsersSelects(){
+  const users=LS.get('users',[]);
+  const u1=$("#saleUser"), u2=$("#timeUser");
+  if(u1){ u1.innerHTML = users.map(u=><option>${u.username}</option>).join(''); }
+  if(u2){ u2.innerHTML = users.map(u=><option>${u.username}</option>).join(''); }
+}
+function saveSale(){
+  const user=$("#saleUser").value, sku=$("#saleSku").value.trim(), qty=parseInt($("#saleQty").value||'1',10), total=parseFloat($("#saleTotal").value||'0');
+  if(!user||!sku||qty<=0){ toast('השדה חסר','warn'); return }
+  const sales=LS.get('sales',[]); sales.push({id:crypto.randomUUID(), user, sku, qty, total, ts:Date.now()});
+  LS.set('sales',sales); renderSales(); clearSaleForm(); toast('נשמרה מכירה','ok'); updateGoalsProgress();
+}
+function renderSales(){
+  const data=LS.get('sales',[]), tbody=$("#salesTable tbody"), empty=$("#salesEmpty"); tbody.innerHTML='';
+  if(data.length===0){ empty.style.display='block'; return } else { empty.style.display='none'; }
+  data.slice().reverse().forEach(r=>{
+    const tr=document.createElement('tr'); const d=new Date(r.ts).toLocaleString('he-IL');
+    tr.innerHTML=`<td>${d}</td><td>${r.user}</td><td>${r.sku}</td><td>${r.qty}</td><td>₪ ${Number(r.total).toFixed(2)}</td>
+      <td><button class="btn ripple" type="button" onclick="delSale('${r.id}')">מחק</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function delSale(id){ let data=LS.get('sales',[]).filter(x=>x.id!==id); LS.set('sales',data); renderSales(); toast('נמחק','ok'); updateGoalsProgress(); }
+function clearSaleForm(){ ['saleSku','saleQty','saleTotal'].forEach(id=> $("#"+id).value=''); }
+
+/* ===== Goals ===== */
+function renderGoals(){ const g=LS.get('goals',{daily:0,weekly:0}); $("#goalDaily").value=g.daily; $("#goalWeekly").value=g.weekly; updateGoalsProgress(); }
+function saveGoals(){ const daily=parseInt($("#goalDaily").value||'0',10), weekly=parseInt($("#goalWeekly").value||'0',10); LS.set('goals',{daily,weekly}); updateGoalsProgress(); toast('יעדים נשמרו','ok'); }
+function sumSalesIn(days){ const since=Date.now() - days*86400000; return LS.get('sales',[]).filter(s=>s.ts>=since).reduce((a,b)=>a+(+b.total||0),0); }
+function updateGoalsProgress(){
+  const g=LS.get('goals',{daily:0,weekly:0});
+  const d=sumSalesIn(1), w=sumSalesIn(7);
+  $("#goalsProgress").textContent = התקדמות: יום ${d}/${g.daily} ₪ • שבוע ${w}/${g.weekly} ₪;
+}
+
+/* ===== Time Clock ===== */
+function clockIn(){ const u=$("#timeUser").value; if(!u){toast('בחר עובד','warn');return} const t=LS.get('time',[]); t.push({id:crypto.randomUUID(),user:u,in:Date.now(),out:null}); LS.set('time',t); renderTime(); toast('Clock-in','ok'); }
+function clockOut(){
+  const u=$("#timeUser").value; if(!u){toast('בחר עובד','warn');return}
+  const t=LS.get('time',[]); const open=t.slice().reverse().find(x=>x.user===u && !x.out); if(!open){toast('אין כניסה פתוחה','warn');return}
+  open.out=Date.now(); LS.set('time',t); renderTime(); toast('Clock-out','ok');
+}
+function renderTime(){
+  const data=LS.get('time',[]), tbody=$("#timeTable tbody"), empty=$("#timeEmpty"); tbody.innerHTML='';
+  if(data.length===0){ empty.style.display='block'; return } else { empty.style.display='none'; }
+  data.slice().reverse().forEach(r=>{
+    const tr=document.createElement('tr'); const ih=new Date(r.in).toLocaleString('he-IL'); const oh=r.out? new Date(r.out).toLocaleString('he-IL'): '—';
+    const hours = r.out? (((r.out - r.in)/3600000)).toFixed(2) : '—';
+    tr.innerHTML=`<td>${r.user}</td><td>${ih}</td><td>${oh}</td><td>${hours}</td>
+      <td><button class="btn ripple" type="button" onclick="delTime('${r.id}')">מחק</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function delTime(id){ let data=LS.get('time',[]).filter(x=>x.id!==id); LS.set('time',data); renderTime(); toast('נמחק','ok'); }
+
+/* ===== Shortages ===== */
 function submitShortage(){
-  const cu=currentUser(), who=cu?cu.username:'אורח', item=$$('#shortItem').value.trim(), qty=parseInt($$('#shortQty').value||'0',10), note=$$('#shortNote').value.trim();
-  if(!item||qty<=0){toast('הכנס פריט וכמות','warn');return}
+  const cu=currentUser(), who=cu? (cu.full||cu.username) : 'אורח';
+  const item=$("#shortItem").value.trim(), qty=parseInt($("#shortQty").value||'0',10), note=$("#shortNote").value.trim();
+  if(!item || qty<=0){ toast('הכנס פריט וכמות','warn'); return }
   const list=LS.get('shortages',[]); list.push({id:crypto.randomUUID(),by:who,item,qty,note,ts:Date.now()}); LS.set('shortages',list);
   const feed=LS.get('shortUserFeed',[]); feed.unshift({item,qty,by:who,ts:Date.now()}); LS.set('shortUserFeed',feed.slice(0,20));
-  renderShortUserFeed(); $$('#shortItem').value=''; $$('#shortQty').value=''; $$('#shortNote').value=''; toast('נשלח','ok');
+  renderShortUserFeed(); $("#shortItem").value=''; $("#shortQty").value=''; $("#shortNote").value=''; toast('נשלח','ok');
 }
 function renderShortUserFeed(){
-  const feed=LS.get('shortUserFeed',[]), box=$$('#shortUserList'); box.innerHTML='';
-  if(feed.length===0){box.innerHTML='<div class="empty">אין דיווחים</div>';return}
+  const feed=LS.get('shortUserFeed',[]), box=$("#shortUserList"); box.innerHTML='';
+  if(feed.length===0){ box.innerHTML='<div class="empty">אין דיווחים</div>'; return }
   feed.forEach(r=>{
     const d=new Date(r.ts).toLocaleString('he-IL'); const div=document.createElement('div'); div.className='card';
-    div.innerHTML=<b>${r.item}</b> — כמות: <b>${r.qty}</b> <span class="muted">(${d})</span><br/><span class="muted">דווח ע״י: ${r.by}</span>;
+    div.innerHTML = <b>${r.item}</b> — כמות: <b>${r.qty}</b> <span class="muted">(${d})</span><br/><span class="muted">דווח ע״י: ${r.by}</span>;
     box.appendChild(div);
   });
 }
 function renderAdminShortages(){
-  const data=LS.get('shortages',[]), tbody=document.querySelector('#shortTable tbody'); tbody.innerHTML='';
-  if(data.length===0){document.getElementById('emptyShort').style.display='block';return}else{document.getElementById('emptyShort').style.display='none'}
+  const data=LS.get('shortages',[]), tbody=$("#shortTable tbody"); tbody.innerHTML='';
+  if(data.length===0){ $("#emptyShort").style.display='block'; return } else { $("#emptyShort").style.display='none'; }
   data.slice().reverse().forEach(r=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${new Date(r.ts).toLocaleString('he-IL')}</td><td>${r.by}</td><td>${r.item}</td><td>${r.qty}</td><td>${r.note||''}</td>
-      <td><button class="btn ripple" onclick="resolveShortage('${r.id}')">סומן טופל</button></td>`;
+    tr.innerHTML = `<td>${new Date(r.ts).toLocaleString('he-IL')}</td><td>${r.by}</td><td>${r.item}</td><td>${r.qty}</td><td>${r.note||''}</td>
+      <td><button class="btn ripple" type="button" onclick="resolveShortage('${r.id}')">סומן טופל</button></td>`;
     tbody.appendChild(tr);
   });
 }
-function resolveShortage(id){let data=LS.get('shortages',[]).filter(x=>x.id!==id); LS.set('shortages',data); renderAdminShortages(); toast('עודכן','ok')}
+function resolveShortage(id){ let data=LS.get('shortages',[]).filter(x=>x.id!==id); LS.set('shortages',data); renderAdminShortages(); toast('עודכן','ok'); }
 
-/* ---------- Admin: Users ---------- */
+/* ===== Users ===== */
 function renderUsers(){
-  const users=LS.get('users',[]), tbody=document.querySelector('#usersTable tbody'); tbody.innerHTML='';
+  const users=LS.get('users',[]), tbody=$("#usersTable tbody"); tbody.innerHTML='';
   users.forEach(u=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${u.username}</td><td>${u.role}</td><td>${new Date(u.created).toLocaleDateString('he-IL')}</td>
-    <td>${u.role!=='admin'?<button class="btn ripple" onclick="delUser('${u.username}')">מחק</button>:''}</td>`;
+    tr.innerHTML = `<td>${u.username}</td><td>${u.full||''}</td><td>${u.role}</td><td>${new Date(u.created).toLocaleDateString('he-IL')}</td>
+      <td>${u.role!=='admin'?<button class="btn ripple" type="button" onclick="delUser('${u.username}')">מחק</button>:''}</td>`;
     tbody.appendChild(tr);
   });
 }
-function delUser(username){
-  if(!confirm('למחוק משתמש?')) return;
-  let users=LS.get('users',[]).filter(u=>u.username!==username); LS.set('users',users); renderUsers(); toast('נמחק','ok');
+function delUser(username){ if(!confirm('למחוק משתמש?')) return; let users=LS.get('users',[]).filter(u=>u.username!==username); LS.set('users',users); renderUsers(); toast('נמחק','ok'); }
+
+/* ===== Reports + Chart (vanilla canvas) ===== */
+function buildReport(){
+  const days = parseInt($("#repDays").value||'7',10);
+  const sales = LS.get('sales',[]);
+  const now=Date.now(), dayMs=86400000;
+  // buckets
+  const labels=[], sums=[];
+  for(let i=days-1;i>=0;i--){ const dayStart = new Date(now - i*dayMs); dayStart.setHours(0,0,0,0);
+    const dayEnd = new Date(dayStart.getTime()+dayMs);
+    const s = sales.filter(x=> x.ts>=dayStart.getTime() && x.ts<dayEnd.getTime()).reduce((a,b)=>a+(+b.total||0),0);
+    labels.push(dayStart.toLocaleDateString('he-IL')); sums.push(s);
+  }
+  drawChart(labels, sums);
+  const total = sums.reduce((a,b)=>a+b,0);
+  $("#repSummary").textContent = סך הכל לתקופה: ₪ ${total.toFixed(2)};
+}
+function drawChart(labels, data){
+  const c=$("#chart"), ctx=c.getContext('2d'); const w=c.width, h=c.height;
+  ctx.clearRect(0,0,w,h);
+  const max=Math.max(...data, 10);
+  const pad=40, bw=(w-pad*2)/data.length*0.7, gap=(w-pad*2)/data.length*0.3;
+  // axes
+  ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad, h-pad); ctx.lineTo(w-pad, h-pad); ctx.moveTo(pad,h-pad); ctx.lineTo(pad,pad); ctx.stroke();
+  // bars
+  const col=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#6aa5ff';
+  for(let i=0;i<data.length;i++){
+    const x=pad + i*(bw+gap) + gap/2; const barH = Math.round((h-pad*2)*(data[i]/max));
+    ctx.fillStyle=col; ctx.fillRect(x, h-pad-barH, bw, barH);
+  }
+  // labels
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.font='12px Heebo, Arial';
+  for(let i=0;i<labels.length;i++){ const x=pad + i*(bw+gap) + gap/2; ctx.fillText(labels[i], x, h-pad+14); }
 }
 
-/* ---------- Import/Export ---------- */
+/* ===== Export / Import / CSV ===== */
 function exportData(){
-  const data={users:LS.get('users',[]),products:LS.get('products',[]),inventory:LS.get('inventory',[]),shortages:LS.get('shortages',[]),shortUserFeed:LS.get('shortUserFeed',[])};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+  const data={users:LS.get('users',[]),products:LS.get('products',[]),inventory:LS.get('inventory',[]),sales:LS.get('sales',[]),goals:LS.get('goals',{}),time:LS.get('time',[]),shortages:LS.get('shortages',[]),shortUserFeed:LS.get('shortUserFeed',[])};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download='backup.json'; a.click(); URL.revokeObjectURL(url); toast('יוצא JSON','ok');
 }
 function importData(evt){
   const f=evt.target.files[0]; if(!f) return;
   const r=new FileReader(); r.onload=e=>{ try{ const data=JSON.parse(e.target.result); Object.entries(data).forEach(([k,v])=>LS.set(k,v));
-    toast('יובא בהצלחה','ok'); renderAdminProducts(); renderInventory(); renderAdminShortages(); renderUsers();
-  }catch{ toast('קובץ לא תקין','danger'); } }; r.readAsText(f);
+    toast('יובא בהצלחה','ok'); renderAdmin(); }catch{ toast('קובץ לא תקין','danger'); } }; r.readAsText(f);
+}
+function exportCSV(){
+  const prods=LS.get('products',[]); const rows=[['sku','name','cat','price']].concat(prods.map(p=>[p.sku,p.name,p.cat||'',p.price]));
+  dlCSV(rows,'products.csv');
+}
+function exportTimesCSV(){
+  const t=LS.get('time',[]); const rows=[['user','in','out','hours']].concat(t.map(r=>[r.user,new Date(r.in).toISOString(),r.out?new Date(r.out).toISOString():'', r.out?((r.out-r.in)/3600000).toFixed(2):'']));
+  dlCSV(rows,'time.csv');
+}
+function dlCSV(rows, name){
+  const csv = rows.map(r=>r.map(x=>"${String(x).replace(/"/g,'""')}").join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); toast('CSV מוכן','ok');
 }
 
-/* ---------- Init ---------- */
-function renderAdmin(){renderAdminProducts();renderInventory();renderAdminShortages();renderUsers()}
-showView('search'); renderAdminProducts(); renderShortUserFeed();
+/* ===== Master render ===== */
+function renderAdmin(){
+  renderAdminProducts(); renderInventory(); renderSales(); renderGoals(); renderTime(); renderAdminShortages(); renderUsers(); fillUsersSelects();
+}
+
+/* ===== Make functions globally available (for onclick safety) ===== */
+Object.assign(window,{
+  showView,setAdminTab,
+  login,logout,register,updateAuthUI,ensureAdmin,
+  search,clearSearch,
+  saveProduct,renderAdminProducts,fillProductForm,deleteProduct,clearProductForm,
+  saveInventory,renderInventory,delInv,clearInvForm,
+  saveSale,renderSales,delSale,clearSaleForm,
+  renderGoals,saveGoals,updateGoalsProgress,
+  clockIn,clockOut,renderTime,delTime,exportTimesCSV,
+  submitShortage,renderShortUserFeed,renderAdminShortages,resolveShortage,
+  renderUsers,delUser,buildReport,drawChart,
+  exportData,importData,exportCSV,dlCSV,renderAdmin,
+  switchTheme
+});
+
+/* ===== Init ===== */
+renderAdminProducts(); renderShortUserFeed(); updateGoalsProgress();
 </script>
 </body>
 </html>
