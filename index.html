@@ -3,119 +3,170 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>חנויות Renuar | חיפוש מק״ט וניהול</title>
+<title>Renuar – חיפוש מק״ט, מלאי וניהול</title>
+<meta name="description" content="דמו מקומי: חיפוש מוצר לפי שם/מק״ט, ניהול מלאי, דיווח חוסרים, והרשאות משתמש." />
 <style>
   :root{
-    --bg:#0e0f12;--card:#151821;--muted:#9aa4b2;--text:#eef2f7;--accent:#3e8ef7;--accent-2:#8a5cf6;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
-    --radius:14px;--radius-sm:10px;--shadow:0 10px 30px rgba(0,0,0,.25);
+    --bg:#0b0e14;--bg2:#0f1320;--card:#121827;--muted:#a6b2c6;--text:#eef2f7;
+    --accent:#6aa5ff;--accent2:#b67cff;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;
+    --ring:#2b3550;--radius:16px;--shadow:0 18px 45px rgba(0,0,0,.35)
   }
   *{box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#0b0c10,#121520 40%,#0e0f12);color:var(--text);font-family:"Heebo","Arial",sans-serif}
-  header{position:sticky;top:0;background:rgba(18,21,32,.7);backdrop-filter:blur(10px);border-bottom:1px solid #202433;z-index:20}
-  .wrap{max-width:1100px;margin:auto;padding:16px}
-  .hero{display:flex;align-items:center;gap:14px}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo-badge{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;font-weight:700}
-  .logo span{font-weight:800;letter-spacing:.3px}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--text);font-family:"Heebo","Arial",sans-serif;
+    background:
+      radial-gradient(1200px 800px at 10% -10%,#1e2b55 0%,transparent 60%),
+      radial-gradient(900px 900px at 110% 0%,#2a194d 0%,transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2) 60%,#0b0e14);
+  }
+  /* Header */
+  header{position:sticky;top:0;z-index:50;border-bottom:1px solid #1f2740;
+    background:rgba(10,14,25,.6);backdrop-filter:blur(10px)}
+  .wrap{max-width:1120px;margin:auto;padding:16px}
+  .hero{display:flex;align-items:center;gap:14px;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:12px}
+  .badge{
+    width:40px;height:40px;border-radius:12px;
+    background:conic-gradient(from 0deg at 50% 50%,var(--accent),var(--accent2),var(--accent));
+    display:grid;place-items:center;font-weight:800;color:#0c1020;box-shadow:0 6px 16px rgba(106,165,255,.35)
+  }
+  .logo span{font-weight:900;letter-spacing:.3px}
   nav{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{border:1px solid #2a3042;background:#161a24;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.2s}
-  .btn:hover{transform:translateY(-1px);border-color:#3a425c}
-  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none}
+  /* Buttons */
+  .btn{
+    position:relative;overflow:hidden;isolation:isolate;
+    border:1px solid var(--ring);background:#121627;color:var(--text);
+    padding:10px 14px;border-radius:12px;cursor:pointer;transition:.18s;
+    box-shadow:0 4px 18px rgba(0,0,0,.18)
+  }
+  .btn:hover{transform:translateY(-1px);border-color:#36406a}
+  .btn.primary{
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    border:none;color:#0c1020;font-weight:800
+  }
+  .btn.ghost{background:transparent}
+  .btn:active{transform:translateY(0)}
+  .btn::after{/* sheen */
+    content:"";position:absolute;inset:-100% auto auto -100%;width:120%;height:220%;
+    background:linear-gradient(120deg,transparent,rgba(255,255,255,.15),transparent);
+    transform:rotate(25deg);transition:.6s;z-index:-1
+  }
+  .btn:hover::after{inset:-30% auto auto -10%}
+  /* Ripple */
+  .ripple{position:relative;overflow:hidden}
+  .ripple span.rp{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;background:rgba(255,255,255,.25)}
+  @keyframes ripple{to{transform:scale(12);opacity:0}}
+  /* Layout */
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media (max-width:900px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid #23283a;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  @media (max-width:980px){.grid{grid-template-columns:1fr}}
+  .card{background:rgba(14,18,32,.72);border:1px solid #1b2240;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
   h1,h2,h3{margin:0 0 10px}
   .muted{color:var(--muted)}
-  input,select,textarea{width:100%;padding:12px 13px;border-radius:12px;border:1px solid #2a3042;background:#0f121a;color:var(--text);outline:none}
-  input:focus,textarea:focus{border-color:#3e8ef7}
-  label{font-size:.95rem;color:#cfd6e4;margin-bottom:6px;display:block}
+  label{display:block;color:#cbd6ec;margin:6px 0 6px;font-size:.95rem}
+  input,select,textarea{
+    width:100%;padding:12px 13px;border-radius:12px;border:1px solid #233055;background:#0d1220;color:var(--text);outline:none;
+    transition:.18s;box-shadow:inset 0 0 0 9999px rgba(255,255,255,0) }
+  input:focus,textarea:focus,select:focus{border-color:#4060ff;box-shadow:0 0 0 3px rgba(64,96,255,.12)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  @media (max-width:700px){.row{grid-template-columns:1fr}}
-  .pill{display:inline-flex;gap:8px;align-items:center;background:#121521;border:1px solid #2a3042;border-radius:999px;padding:6px 10px;font-size:.9rem}
-  .prod{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}
-  .prod img{width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid #2a3042;background:#0e1018}
+  @media (max-width:720px){.row{grid-template-columns:1fr}}
+  .pill{display:inline-flex;gap:8px;align-items:center;background:#12162b;border:1px solid #26335e;border-radius:999px;padding:6px 10px;font-size:.9rem}
   .list{display:grid;gap:12px}
-  .table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:12px;border:1px solid #2a3042}
-  .table th,.table td{padding:10px;border-bottom:1px solid #2a3042;text-align:right}
-  .table th{background:#121521;color:#cfd6e4}
-  .empty{border:1px dashed #2a3042;border-radius:12px;padding:14px;text-align:center;color:#a7b0bf}
-  .right{float:inline-start}
-  .danger{color:var(--danger)}
-  .ok{color:var(--ok)}
-  footer{opacity:.7;text-align:center;padding:28px 0}
-  .tabs{display:flex;gap:8px;margin:8px 0 14px}
+  .prod{display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center}
+  .prod img{width:110px;height:110px;object-fit:cover;border-radius:14px;border:1px solid #26335e;background:#0e1018}
+  .table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px;border:1px solid #27335f}
+  .table th,.table td{padding:10px;border-bottom:1px solid #27335f;text-align:right}
+  .table th{background:#12162b;color:#cfd6e4}
+  .empty{border:1px dashed #2a355f;border-radius:12px;padding:14px;text-align:center;color:#97a5c4}
+  footer{opacity:.75;text-align:center;padding:28px 0}
+  .tabs{display:flex;gap:8px;margin:8px 0 14px;flex-wrap:wrap}
   .tabs .btn{padding:8px 10px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  /* Skeleton */
+  .skeleton{background:linear-gradient(90deg,#0f1426 0%,#18213e 50%,#0f1426 100%);background-size:200% 100%;animation:sk 1.2s infinite}
+  @keyframes sk{to{background-position:-200% 0}}
+  /* Toasts */
+  .toast{
+    position:fixed;bottom:18px;inset-inline:0;display:grid;justify-items:center;z-index:60;pointer-events:none
+  }
+  .toast .msg{
+    pointer-events:auto;min-width:220px;max-width:90%;
+    background:#10162a;border:1px solid #26335e;box-shadow:var(--shadow);
+    color:var(--text);padding:10px 14px;border-radius:12px;display:flex;gap:10px;align-items:center;
+    animation:pop .2s ease-out
+  }
+  .msg.ok{border-color:#244e35}
+  .msg.warn{border-color:#5a441f}
+  .msg.danger{border-color:#5a2222}
+  @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+  /* View fade */
+  .view{opacity:0;transform:translateY(8px);transition:.18s}
+  .view.active{opacity:1;transform:none}
 </style>
 </head>
 <body>
 <header>
-  <div class="wrap hero" style="justify-content:space-between">
+  <div class="wrap hero">
     <div class="logo">
-      <div class="logo-badge">R</div>
-      <span>Renuar – חיפוש מק״ט וניהול</span>
+      <div class="badge">R</div>
+      <span>Renuar – חיפוש מק״ט & ניהול</span>
     </div>
     <nav>
-      <button class="btn" onclick="showView('search')">🔎 חיפוש מוצר</button>
-      <button class="btn" onclick="showView('shortage')">📝 רשימת חוסרים</button>
-      <a class="btn" href="https://www.renuar.co.il" target="_blank" rel="noopener">🛍 Renuar</a>
-      <button id="loginBtn" class="btn primary" onclick="showView('auth')">👤 כניסה</button>
-      <button id="adminBtn" class="btn" style="display:none" onclick="showView('admin')">🛠 ניהול</button>
-      <button id="logoutBtn" class="btn" style="display:none" onclick="logout()">🚪 יציאה</button>
+      <button class="btn ripple" onclick="showView('search')">🔎 חיפוש מוצר</button>
+      <button class="btn ripple" onclick="showView('shortage')">📝 רשימת חוסרים</button>
+      <a class="btn ripple" href="https://www.renuar.co.il" target="_blank" rel="noopener">🛍 Renuar</a>
+      <button id="loginBtn" class="btn primary ripple" onclick="showView('auth')">👤 כניסה</button>
+      <button id="adminBtn" class="btn ripple" style="display:none" onclick="showView('admin')">🛠 ניהול</button>
+      <button id="logoutBtn" class="btn ripple" style="display:none" onclick="logout()">🚪 יציאה</button>
     </nav>
   </div>
 </header>
 
 <main class="wrap" style="padding-top:18px">
-  <!-- חיפוש -->
-  <section id="view-search" class="grid">
+  <!-- SEARCH -->
+  <section id="view-search" class="grid view active">
     <div class="card">
       <h2>🔎 חיפוש מוצר</h2>
       <p class="muted">הקלד <b>שם</b> או <b>מק״ט</b> ולחץ חפש</p>
       <div class="row">
         <div>
           <label>שם פריט</label>
-          <input id="qName" placeholder="לדוגמה: חולצת פולו" onkeydown="if(event.key==='Enter') search()" />
+          <input id="qName" placeholder="לדוגמה: חולצת פולו" />
         </div>
         <div>
           <label>מק״ט</label>
-          <input id="qSku" placeholder="לדוגמה: M250216" onkeydown="if(event.key==='Enter') search()" />
+          <input id="qSku" placeholder="לדוגמה: M250216" />
         </div>
       </div>
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <button class="btn primary" onclick="search()">חפש</button>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn primary ripple" onclick="search()">חפש</button>
+        <button class="btn ripple ghost" onclick="clearSearch()">נקה</button>
         <span class="pill">תוצאות מקומיות</span>
       </div>
     </div>
 
     <div class="card" id="searchResults">
       <h3>תוצאות</h3>
-      <div id="resultsList" class="list"></div>
+      <div id="resultsList" class="list">
+        <!-- Skeletons -->
+        <div class="card skeleton" style="height:92px;border-radius:12px"></div>
+        <div class="card skeleton" style="height:92px;border-radius:12px"></div>
+      </div>
     </div>
   </section>
 
-  <!-- חוסרים -->
-  <section id="view-shortage" class="grid" style="display:none">
+  <!-- SHORTAGES -->
+  <section id="view-shortage" class="grid view" style="display:none">
     <div class="card">
       <h2>📝 רשימת חוסרים</h2>
       <p class="muted">כתוב כאן מה חסר במחסן / בחנות. הדיווח יופיע אצל האדמין.</p>
       <div class="row">
-        <div>
-          <label>שם פריט חסר</label>
-          <input id="shortItem" placeholder="לדוגמה: שקיות" />
-        </div>
-        <div>
-          <label>כמות דרושה</label>
-          <input id="shortQty" type="number" min="1" placeholder="50" />
-        </div>
+        <div><label>שם פריט חסר</label><input id="shortItem" placeholder="לדוגמה: שקיות" /></div>
+        <div><label>כמות דרושה</label><input id="shortQty" type="number" min="1" placeholder="50" /></div>
       </div>
       <div class="row">
-        <div>
-          <label>הערות</label>
-          <input id="shortNote" placeholder="צבע, מידה, ספק..." />
-        </div>
-        <div style="display:flex;align-items:end">
-          <button class="btn primary" onclick="submitShortage()">שלח</button>
-        </div>
+        <div><label>הערות</label><input id="shortNote" placeholder="צבע, מידה, ספק..." /></div>
+        <div style="display:flex;align-items:end"><button class="btn primary ripple" onclick="submitShortage()">שלח</button></div>
       </div>
     </div>
 
@@ -125,25 +176,19 @@
     </div>
   </section>
 
-  <!-- כניסה -->
-  <section id="view-auth" class="grid" style="display:none">
+  <!-- AUTH -->
+  <section id="view-auth" class="grid view" style="display:none">
     <div class="card">
       <h2>👤 כניסה</h2>
       <div class="row">
-        <div>
-          <label>שם משתמש</label>
-          <input id="loginUser" placeholder="לדוגמה: admin או user" />
-        </div>
-        <div>
-          <label>סיסמה</label>
-          <input id="loginPass" type="password" placeholder="••••••••" />
-        </div>
+        <div><label>שם משתמש</label><input id="loginUser" placeholder="לדוגמה: admin או user" /></div>
+        <div><label>סיסמה</label><input id="loginPass" type="password" placeholder="••••••••" /></div>
       </div>
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <button class="btn primary" onclick="login()">כניסה</button>
-        <button class="btn" onclick="showView('register')">הרשמה</button>
+      <div class="actions" style="margin-top:10px">
+        <button class="btn primary ripple" onclick="login()">כניסה</button>
+        <button class="btn ripple" onclick="showView('register')">הרשמה</button>
       </div>
-      <p class="muted" style="margin-top:10px">⚠ זהו דמו מקומי (localStorage). אל תכניס סיסמה אמיתית.</p>
+      <p class="muted" style="margin-top:10px">⚠ דמו מקומי (localStorage) – אל תכניס סיסמה אמיתית.</p>
     </div>
 
     <div class="card">
@@ -153,69 +198,77 @@
     </div>
   </section>
 
-  <!-- הרשמה -->
-  <section id="view-register" class="grid" style="display:none">
+  <!-- REGISTER -->
+  <section id="view-register" class="grid view" style="display:none">
     <div class="card">
       <h2>🆕 הרשמה</h2>
       <div class="row">
-        <div>
-          <label>שם משתמש</label>
-          <input id="regUser" placeholder="לדוגמה: user123" />
-        </div>
-        <div>
-          <label>סיסמה</label>
-          <input id="regPass" type="password" placeholder="••••••••" />
-        </div>
+        <div><label>שם משתמש</label><input id="regUser" placeholder="לדוגמה: user123" /></div>
+        <div><label>סיסמה</label><input id="regPass" type="password" placeholder="••••••••" /></div>
       </div>
-      <div style="margin-top:10px">
-        <button class="btn primary" onclick="register()">צור חשבון</button>
-      </div>
+      <div style="margin-top:10px"><button class="btn primary ripple" onclick="register()">צור חשבון</button></div>
     </div>
   </section>
 
-  <!-- אדמין -->
-  <section id="view-admin" class="grid" style="display:none">
+  <!-- ADMIN -->
+  <section id="view-admin" class="grid view" style="display:none">
     <div class="card">
       <h2>🛠 ניהול</h2>
       <div class="tabs">
-        <button class="btn" onclick="setAdminTab('products')">🗂 מוצרים</button>
-        <button class="btn" onclick="setAdminTab('shortages')">📝 חוסרים</button>
-        <button class="btn" onclick="setAdminTab('users')">👥 משתמשים</button>
+        <button class="btn ripple" onclick="setAdminTab('products')">🗂 מוצרים</button>
+        <button class="btn ripple" onclick="setAdminTab('inventory')">📦 מלאי</button>
+        <button class="btn ripple" onclick="setAdminTab('shortages')">📝 חוסרים</button>
+        <button class="btn ripple" onclick="setAdminTab('users')">👥 משתמשים</button>
       </div>
 
-      <!-- מוצרים -->
+      <!-- PRODUCTS -->
       <div id="admin-products">
         <h3>הוספת / עריכת מוצר</h3>
         <div class="row">
-          <div>
-            <label>שם פריט</label>
-            <input id="pName" placeholder="חולצת פולו" />
-          </div>
-          <div>
-            <label>מק״ט (ייחודי)</label>
-            <input id="pSku" placeholder="M250216" />
-          </div>
+          <div><label>שם פריט</label><input id="pName" placeholder="חולצת פולו" /></div>
+          <div><label>מק״ט (ייחודי)</label><input id="pSku" placeholder="M250216" /></div>
         </div>
         <div class="row">
-          <div>
-            <label>מחיר ₪</label>
-            <input id="pPrice" type="number" min="0" step="0.01" placeholder="119.90" />
-          </div>
-          <div>
-            <label>קישור תמונה (URL)</label>
-            <input id="pImg" placeholder="https://example.com/img.jpg" />
-          </div>
+          <div><label>מחיר ₪</label><input id="pPrice" type="number" min="0" step="0.01" placeholder="119.90" /></div>
+          <div><label>קישור תמונה (URL)</label><input id="pImg" placeholder="https://example.com/img.jpg" /></div>
         </div>
-        <div style="margin-top:10px;display:flex;gap:8px">
-          <button class="btn primary" onclick="saveProduct()">שמירה</button>
-          <button class="btn" onclick="clearProductForm()">נקה</button>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn primary ripple" onclick="saveProduct()">שמירה</button>
+          <button class="btn ripple" onclick="clearProductForm()">נקה</button>
+          <button class="btn ripple" onclick="exportData()">📤 יצוא JSON</button>
+          <label class="btn ripple" for="importFile">📥 יבוא JSON</label>
+          <input id="importFile" type="file" accept="application/json" style="display:none" onchange="importData(event)" />
         </div>
 
         <h3 style="margin-top:18px">כל המוצרים</h3>
         <div id="adminProdList" class="list"></div>
       </div>
 
-      <!-- חוסרים -->
+      <!-- INVENTORY -->
+      <div id="admin-inventory" style="display:none">
+        <h3>ניהול מלאי</h3>
+        <div class="row">
+          <div><label>מק״ט</label><input id="invSku" placeholder="M250216" /></div>
+          <div><label>כמות</label><input id="invQty" type="number" min="0" placeholder="0" /></div>
+        </div>
+        <div class="row">
+          <div><label>סניף/מיקום</label><input id="invLoc" placeholder="וילג' מול חדרה" /></div>
+          <div><label>מידה / צבע</label><input id="invAttr" placeholder="S / שחור" /></div>
+        </div>
+        <div class="actions" style="margin-top:10px">
+          <button class="btn primary ripple" onclick="saveInventory()">שמירת מלאי</button>
+          <button class="btn ripple" onclick="clearInvForm()">נקה</button>
+        </div>
+
+        <h3 style="margin-top:18px">רשומת מלאי</h3>
+        <table class="table" id="invTable">
+          <thead><tr><th>מק״ט</th><th>כמות</th><th>מיקום</th><th>מידה/צבע</th><th>עודכן</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="invEmpty" class="empty" style="display:none">אין רשומות מלאי</div>
+      </div>
+
+      <!-- SHORTAGES (ADMIN) -->
       <div id="admin-shortages" style="display:none">
         <h3>דיווחי חוסרים</h3>
         <table class="table" id="shortTable">
@@ -225,7 +278,7 @@
         <div id="emptyShort" class="empty" style="display:none">אין דיווחים כרגע</div>
       </div>
 
-      <!-- משתמשים -->
+      <!-- USERS -->
       <div id="admin-users" style="display:none">
         <h3>משתמשים</h3>
         <table class="table" id="usersTable">
@@ -238,8 +291,8 @@
     <div class="card">
       <h3>הערות אבטחה</h3>
       <ul class="muted">
-        <li>זהו דמו מקומי (localStorage) בלבד.</li>
-        <li>לשימוש אמיתי דרוש backend מאובטח (כמו Firebase או Node/Express).</li>
+        <li>דמו מקומי (localStorage) בלבד.</li>
+        <li>לפרודקשן: מומלץ Backend (Firebase / Node/Express + DB).</li>
       </ul>
     </div>
   </section>
@@ -249,81 +302,249 @@
   <div class="wrap muted">© <span id="year"></span> Renuar Demo – גרסת הדגמה מקומית</div>
 </footer>
 
+<div class="toast" id="toast"></div>
+
 <script>
-/* אותו קוד JS כמו בגרסה הקודמת */
-const LS = {
-  get(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def }},
-  set(k,v){ localStorage.setItem(k, JSON.stringify(v)) }
+/* ---------- Utils ---------- */
+const LS={get:(k,def)=>{try{return JSON.parse(localStorage.getItem(k))??def}catch{return def}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const $$=s=>document.querySelector(s);
+const $on=(el,ev,cb)=>el.addEventListener(ev,cb);
+const toast=(t,type='ok')=>{
+  const box=$$('#toast'); const m=document.createElement('div'); m.className='msg '+type;
+  m.innerHTML=t; box.appendChild(m); setTimeout(()=>{m.remove();},2500);
 };
-const $$ = s=>document.querySelector(s);
-const $all = s=>Array.from(document.querySelectorAll(s));
+const ripple=(e)=>{
+  const b=e.currentTarget; const r=document.createElement('span'); r.className='rp';
+  const rect=b.getBoundingClientRect(); const d=Math.max(rect.width,rect.height);
+  r.style.width=r.style.height=d+'px';
+  const x=e.clientX-rect.left-d/2, y=e.clientY-rect.top-d/2;
+  r.style.left=x+'px'; r.style.top=y+'px';
+  b.appendChild(r); setTimeout(()=>r.remove(),600);
+};
+document.querySelectorAll('.ripple').forEach(b=>$on(b,'click',ripple));
 
+/* ---------- Seed ---------- */
 (function seed(){
-  if(!LS.get('users')) {
-    LS.set('users', [ {username:'admin', pass:'1234', role:'admin', created: Date.now()} ]);
-  }
-  if(!LS.get('products')) {
-    LS.set('products', [
-      {name:'חולצת פולו אמבר', sku:'M250216', price:119.90, img:''},
-      {name:'ג׳ינס לבן רחב', sku:'G199990', price:199.90, img:''},
-      {name:'סניקרס Gaimi חום', sku:'S149900', price:149.90, img:''},
-    ]);
-  }
-  if(!LS.get('shortages')) LS.set('shortages', []);
-  if(!LS.get('shortUserFeed')) LS.set('shortUserFeed', []);
-})();
-document.getElementById('year').textContent=new Date().getFullYear();
+  if(!LS.get('users')) LS.set('users',[{username:'admin',pass:'1234',role:'admin',created:Date.now()}]);
+  if(!LS.get('products')) LS.set('products',[
+    {name:'חולצת פולו אמבר', sku:'M250216', price:119.90, img:''},
+    {name:'ג׳ינס לבן רחב', sku:'G199990', price:199.90, img:''},
+    {name:'סניקרס Gaimi חום', sku:'S149900', price:149.90, img:''},
+  ]);
+  if(!LS.get('inventory')) LS.set('inventory',[]);
+  if(!LS.get('shortages')) LS.set('shortages',[]);
+  if(!LS.get('shortUserFeed')) LS.set('shortUserFeed',[]);
+})(); document.getElementById('year').textContent=new Date().getFullYear();
 
+/* ---------- Router with animation ---------- */
+const views=['search','shortage','auth','register','admin'];
 function showView(name){
-  const ids=['search','shortage','auth','register','admin'];
-  ids.forEach(id=> {
+  views.forEach(id=>{
     const el=document.getElementById('view-'+id);
-    if(el) el.style.display=(id===name)?'grid':'none';
+    if(!el) return;
+    const active = (id===name);
+    el.style.display=active?'grid':'none';
+    setTimeout(()=> el.classList.toggle('active',active), active?10:0);
   });
-  if(name==='search') renderResults([]);
-  if(name==='shortage') renderShortUserFeed();
-  if(name==='admin'){ ensureAdmin(); renderAdmin(); }
-}
-function setAdminTab(tab){
-  $$('#admin-products').style.display=tab==='products'?'block':'none';
-  $$('#admin-shortages').style.display=tab==='shortages'?'block':'none';
-  $$('#admin-users').style.display=tab==='users'?'block':'none';
-  if(tab==='shortages') renderAdminShortages();
-  if(tab==='users') renderUsers();
-  if(tab==='products') renderAdminProducts();
+  if(name==='search'){ renderResults([]) }
+  if(name==='shortage'){ renderShortUserFeed() }
+  if(name==='admin'){ ensureAdmin(); renderAdmin() }
 }
 
-/* Auth */
-function currentUser(){ return LS.get('currentUser',null) }
-function login(){
-  const u=$$('#loginUser').value.trim(); const p=$$('#loginPass').value;
-  const users=LS.get('users',[]);
-  const found=users.find(x=>x.username===u && x.pass===p);
-  if(!found){alert('❌ שם משתמש או סיסמה לא נכונים');return}
-  LS.set('currentUser',{username:found.username,role:found.role});
-  updateAuthUI();
-  showView(found.role==='admin'?'admin':'search');
-}
-function logout(){localStorage.removeItem('currentUser');updateAuthUI();showView('auth')}
-function register(){
-  const u=$$('#regUser').value.trim(); const p=$$('#regPass').value;
-  if(!u||!p){alert('הכנס שם וסיסמה');return}
-  let users=LS.get('users',[]);
-  if(users.some(x=>x.username===u)){alert('שם תפוס');return}
-  users.push({username:u,pass:p,role:'user',created:Date.now()});
-  LS.set('users',users);
-  alert('✅ נוצר חשבון חדש');
-  showView('auth');
-}
-function ensureAdmin(){const cu=currentUser();if(!cu||cu.role!=='admin'){alert('נדרשת כניסת אדמין');showView('auth')}}
+/* ---------- Auth ---------- */
+function currentUser(){return LS.get('currentUser',null)}
 function updateAuthUI(){
   const cu=currentUser();
   $$('#loginBtn').style.display=cu?'none':'inline-block';
   $$('#logoutBtn').style.display=cu?'inline-block':'none';
   $$('#adminBtn').style.display=(cu&&cu.role==='admin')?'inline-block':'none';
 }
+function ensureAdmin(){const cu=currentUser(); if(!cu||cu.role!=='admin'){alert('נדרשת כניסת אדמין'); showView('auth');}}
+function login(){
+  const u=$$('#loginUser').value.trim(), p=$$('#loginPass').value;
+  const users=LS.get('users',[]), found=users.find(x=>x.username===u&&x.pass===p);
+  if(!found){toast('שם משתמש או סיסמה לא נכונים','danger');return}
+  LS.set('currentUser',{username:found.username,role:found.role}); updateAuthUI();
+  toast('ברוך הבא, '+u,'ok'); showView(found.role==='admin'?'admin':'search');
+}
+function logout(){localStorage.removeItem('currentUser');updateAuthUI();toast('התנתקת','warn');showView('auth')}
+function register(){
+  const u=$$('#regUser').value.trim(), p=$$('#regPass').value;
+  if(!u||!p){toast('הכנס שם וסיסמה','warn');return}
+  let users=LS.get('users',[]); if(users.some(x=>x.username===u)){toast('שם תפוס','danger');return}
+  users.push({username:u,pass:p,role:'user',created:Date.now()}); LS.set('users',users);
+  toast('נוצר חשבון חדש','ok'); showView('auth');
+}
 updateAuthUI();
 
-/* Search */
+/* ---------- Search ---------- */
+const searchDebounced = (()=>{let t; return f=>{clearTimeout(t); t=setTimeout(f,180)}})();
+$on($$('#qName'),'keydown',(e)=>{if(e.key==='Enter') search()});
+$on($$('#qSku'),'keydown',(e)=>{if(e.key==='Enter') search()});
+function clearSearch(){ $$('#qName').value=''; $$('#qSku').value=''; renderResults([]); }
 function search(){
-  const name=$
+  const name=$$('#qName').value.trim().toLowerCase();
+  const sku =$$('#qSku').value.trim().toLowerCase();
+  const prods=LS.get('products',[]);
+  searchDebounced(()=>{
+    const res=prods.filter(p=>{
+      const byName=name? p.name.toLowerCase().includes(name):true;
+      const bySku =sku? (p.sku.toLowerCase()===sku||p.sku.toLowerCase().includes(sku)):true;
+      return byName && bySku;
+    });
+    renderResults(res);
+  });
+}
+function renderResults(arr){
+  const wrap=$$('#resultsList'); wrap.innerHTML='';
+  if(!arr||arr.length===0){wrap.innerHTML='<div class="empty">אין תוצאות… נסה שם/מק״ט אחר</div>';return}
+  arr.forEach(p=>{
+    const card=document.createElement('div'); card.className='card';
+    const img=p.img||'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22110%22 height=%22110%22><rect width=%22110%22 height=%22110%22 fill=%22%2313161f%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%23aab2c5%22 font-size=%2212%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>no image</text></svg>';
+    card.innerHTML=`<div class="prod">
+      <img src="${img}" alt="תמונה"/>
+      <div>
+        <div class="pill">מק״ט: <b>${p.sku}</b></div>
+        <h3 style="margin-top:6px">${p.name}</h3>
+        <div style="margin-top:6px" class="pill">₪ ${Number(p.price).toFixed(2)}</div>
+      </div>
+    </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+/* ---------- Admin Tabs ---------- */
+function setAdminTab(tab){
+  ['products','inventory','shortages','users'].forEach(id=>{
+    document.getElementById('admin-'+id).style.display=(id===tab)?'block':'none';
+  });
+  if(tab==='products') renderAdminProducts();
+  if(tab==='inventory') renderInventory();
+  if(tab==='shortages') renderAdminShortages();
+  if(tab==='users') renderUsers();
+}
+
+/* ---------- Admin: Products ---------- */
+function saveProduct(){
+  const name=$$('#pName').value.trim(), sku=$$('#pSku').value.trim(), price=parseFloat($$('#pPrice').value||'0'), img=$$('#pImg').value.trim();
+  if(!name||!sku){toast('שם ומק״ט נדרשים','warn');return}
+  const prods=LS.get('products',[]); const idx=prods.findIndex(p=>p.sku.toLowerCase()===sku.toLowerCase());
+  if(idx>-1) prods[idx]={...prods[idx],name,price,img}; else prods.push({name,sku,price,img});
+  LS.set('products',prods); renderAdminProducts(); clearProductForm(); toast('נשמר','ok');
+}
+function renderAdminProducts(){
+  const wrap=$$('#adminProdList'); wrap.innerHTML='';
+  const prods=LS.get('products',[]); if(prods.length===0){wrap.innerHTML='<div class="empty">אין מוצרים</div>';return}
+  prods.forEach(p=>{
+    const div=document.createElement('div'); div.className='card';
+    const img=p.img||'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22110%22 height=%22110%22><rect width=%22110%22 height=%22110%22 fill=%22%2313161f%22/></svg>';
+    div.innerHTML=`<div class="prod">
+      <img src="${img}" alt="">
+      <div>
+        <div class="pill">SKU: <b>${p.sku}</b></div>
+        <h3 style="margin:6px 0">${p.name}</h3>
+        <div class="pill">₪ ${Number(p.price).toFixed(2)}</div>
+        <div class="actions" style="margin-top:8px">
+          <button class="btn ripple" onclick='fillProductForm(${JSON.stringify(JSON.stringify(p))})'>ערוך</button>
+          <button class="btn ripple" onclick='deleteProduct("${p.sku}")'>מחק</button>
+        </div>
+      </div>
+    </div>`;
+    wrap.appendChild(div);
+  });
+}
+function fillProductForm(jsonStr){
+  const p=JSON.parse(jsonStr);
+  $$('#pName').value=p.name; $$('#pSku').value=p.sku; $$('#pPrice').value=p.price; $$('#pImg').value=p.img||'';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function deleteProduct(sku){
+  if(!confirm('למחוק מוצר?')) return;
+  const prods=LS.get('products',[]).filter(p=>p.sku!==sku); LS.set('products',prods); renderAdminProducts(); toast('נמחק','ok');
+}
+function clearProductForm(){['pName','pSku','pPrice','pImg'].forEach(id=> $$('#'+id).value='')}
+
+/* ---------- Admin: Inventory ---------- */
+function saveInventory(){
+  const sku=$$('#invSku').value.trim(), qty=parseInt($$('#invQty').value||'0',10), loc=$$('#invLoc').value.trim(), attr=$$('#invAttr').value.trim();
+  if(!sku){toast('מק״ט נדרש','warn');return} if(qty<0||Number.isNaN(qty)){toast('כמות לא תקינה','warn');return}
+  let inv=LS.get('inventory',[]); const idx=inv.findIndex(r=>r.sku.toLowerCase()===sku.toLowerCase()&&(r.loc||'')===loc&&(r.attr||'')===attr); const now=Date.now();
+  if(idx>-1){inv[idx]={...inv[idx],qty,loc,attr,ts:now}} else {inv.push({id:crypto.randomUUID(),sku,qty,loc,attr,ts:now})}
+  LS.set('inventory',inv); renderInventory(); clearInvForm(); toast('מלאי נשמר','ok');
+}
+function renderInventory(){
+  const data=LS.get('inventory',[]), tbody=document.querySelector('#invTable tbody'), empty=$$('#invEmpty'); tbody.innerHTML='';
+  if(data.length===0){empty.style.display='block';return}else{empty.style.display='none'}
+  data.slice().reverse().forEach(r=>{
+    const d=new Date(r.ts).toLocaleString('he-IL'); const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.sku}</td><td>${r.qty}</td><td>${r.loc||''}</td><td>${r.attr||''}</td><td>${d}</td>
+      <td><button class="btn ripple" onclick="delInv('${r.id}')">מחק</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function delInv(id){let data=LS.get('inventory',[]).filter(x=>x.id!==id); LS.set('inventory',data); renderInventory(); toast('נמחק','ok')}
+function clearInvForm(){['invSku','invQty','invLoc','invAttr'].forEach(id=> $$('#'+id).value='')}
+
+/* ---------- Shortages (user + admin) ---------- */
+function submitShortage(){
+  const cu=currentUser(), who=cu?cu.username:'אורח', item=$$('#shortItem').value.trim(), qty=parseInt($$('#shortQty').value||'0',10), note=$$('#shortNote').value.trim();
+  if(!item||qty<=0){toast('הכנס פריט וכמות','warn');return}
+  const list=LS.get('shortages',[]); list.push({id:crypto.randomUUID(),by:who,item,qty,note,ts:Date.now()}); LS.set('shortages',list);
+  const feed=LS.get('shortUserFeed',[]); feed.unshift({item,qty,by:who,ts:Date.now()}); LS.set('shortUserFeed',feed.slice(0,20));
+  renderShortUserFeed(); $$('#shortItem').value=''; $$('#shortQty').value=''; $$('#shortNote').value=''; toast('נשלח','ok');
+}
+function renderShortUserFeed(){
+  const feed=LS.get('shortUserFeed',[]), box=$$('#shortUserList'); box.innerHTML='';
+  if(feed.length===0){box.innerHTML='<div class="empty">אין דיווחים</div>';return}
+  feed.forEach(r=>{
+    const d=new Date(r.ts).toLocaleString('he-IL'); const div=document.createElement('div'); div.className='card';
+    div.innerHTML=<b>${r.item}</b> — כמות: <b>${r.qty}</b> <span class="muted">(${d})</span><br/><span class="muted">דווח ע״י: ${r.by}</span>;
+    box.appendChild(div);
+  });
+}
+function renderAdminShortages(){
+  const data=LS.get('shortages',[]), tbody=document.querySelector('#shortTable tbody'); tbody.innerHTML='';
+  if(data.length===0){document.getElementById('emptyShort').style.display='block';return}else{document.getElementById('emptyShort').style.display='none'}
+  data.slice().reverse().forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${new Date(r.ts).toLocaleString('he-IL')}</td><td>${r.by}</td><td>${r.item}</td><td>${r.qty}</td><td>${r.note||''}</td>
+      <td><button class="btn ripple" onclick="resolveShortage('${r.id}')">סומן טופל</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function resolveShortage(id){let data=LS.get('shortages',[]).filter(x=>x.id!==id); LS.set('shortages',data); renderAdminShortages(); toast('עודכן','ok')}
+
+/* ---------- Admin: Users ---------- */
+function renderUsers(){
+  const users=LS.get('users',[]), tbody=document.querySelector('#usersTable tbody'); tbody.innerHTML='';
+  users.forEach(u=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${u.username}</td><td>${u.role}</td><td>${new Date(u.created).toLocaleDateString('he-IL')}</td>
+    <td>${u.role!=='admin'?<button class="btn ripple" onclick="delUser('${u.username}')">מחק</button>:''}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+function delUser(username){
+  if(!confirm('למחוק משתמש?')) return;
+  let users=LS.get('users',[]).filter(u=>u.username!==username); LS.set('users',users); renderUsers(); toast('נמחק','ok');
+}
+
+/* ---------- Import/Export ---------- */
+function exportData(){
+  const data={users:LS.get('users',[]),products:LS.get('products',[]),inventory:LS.get('inventory',[]),shortages:LS.get('shortages',[]),shortUserFeed:LS.get('shortUserFeed',[])};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}), url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download='backup.json'; a.click(); URL.revokeObjectURL(url); toast('יוצא JSON','ok');
+}
+function importData(evt){
+  const f=evt.target.files[0]; if(!f) return;
+  const r=new FileReader(); r.onload=e=>{ try{ const data=JSON.parse(e.target.result); Object.entries(data).forEach(([k,v])=>LS.set(k,v));
+    toast('יובא בהצלחה','ok'); renderAdminProducts(); renderInventory(); renderAdminShortages(); renderUsers();
+  }catch{ toast('קובץ לא תקין','danger'); } }; r.readAsText(f);
+}
+
+/* ---------- Init ---------- */
+function renderAdmin(){renderAdminProducts();renderInventory();renderAdminShortages();renderUsers()}
+showView('search'); renderAdminProducts(); renderShortUserFeed();
+</script>
+</body>
+</html>
