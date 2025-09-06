@@ -303,7 +303,62 @@
 </footer>
 
 <div class="toast" id="toast"></div>
+<script>
+// ------ PATCH: اجعل الدوال مرئية عالمياً + حماية بسيطة ------
 
+// لو crypto.randomUUID غير متاح
+if (!('crypto' in window) || typeof crypto.randomUUID !== 'function') {
+  window.crypto = window.crypto || {};
+  crypto.randomUUID = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+}
+
+// تأكد أن click على الأزرار ما يعمل submit داخل فورم
+document.querySelectorAll('button').forEach(btn=>{
+  if(!btn.hasAttribute('type')) btn.setAttribute('type','button');
+});
+
+// اجعل كل الدوال المستعملة في onclick متاحة على window
+[
+  'showView','setAdminTab',
+  'login','logout','register',
+  'search','clearSearch',
+  'saveProduct','renderAdminProducts','fillProductForm','deleteProduct','clearProductForm',
+  'saveInventory','renderInventory','delInv','clearInvForm',
+  'submitShortage','renderShortUserFeed','renderAdminShortages','resolveShortage',
+  'renderUsers','exportData','importData','renderAdmin'
+].forEach(fn=>{
+  if (typeof window[fn] !== 'function' && typeof eval(typeof ${fn} === 'function' && ${fn}) === 'function') {
+    // no-op: فقط للتوافق
+  }
+  try { window[fn] = window[fn] || eval(fn); } catch(e) {}
+});
+
+// إعادة تفعيل مستمعات الـ ripple بعد التغييرات
+(function rebindRipple(){
+  const ripple = (e)=>{
+    const b = e.currentTarget;
+    const r = document.createElement('span');
+    r.className = 'rp';
+    const rect = b.getBoundingClientRect();
+    const d = Math.max(rect.width, rect.height);
+    r.style.width = r.style.height = d + 'px';
+    const x = (e.clientX||0) - rect.left - d/2;
+    const y = (e.clientY||0) - rect.top  - d/2;
+    r.style.left = x + 'px'; r.style.top = y + 'px';
+    b.appendChild(r);
+    setTimeout(()=> r.remove(), 600);
+  };
+  document.querySelectorAll('.ripple').forEach(b=>{
+    b.removeEventListener('click', ripple); // منع التكرار
+    b.addEventListener('click', ripple);
+  });
+})();
+
+// لو في خطأ يمنع تشغيل السكربت، اطبع للكونسول
+window.addEventListener('error', (e)=> {
+  console.warn('JS Error:', e.message);
+});
+</script>
 <script>
 /* ---------- Utils ---------- */
 const LS={get:(k,def)=>{try{return JSON.parse(localStorage.getItem(k))??def}catch{return def}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
