@@ -31,10 +31,10 @@
     nav{display:flex; gap:8px; flex-wrap:wrap}
     .tab{
       border:none; padding:10px 14px; border-radius:999px; color:var(--text); cursor:pointer;
-      background:transparent; transition:.25s; font-weight:600;
+      background:transparent; transition:.25s, transform .15s; font-weight:600;
       border:1px solid rgba(255,255,255,.08)
     }
-    .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--brand),var(--brand2)); box-shadow:var(--shadow)}
+    .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--brand),var(--brand2)); box-shadow:var(--shadow); transform:translateY(-1px)}
     .wrap{max-width:1200px; margin:24px auto; padding:0 16px}
     .grid{display:grid; grid-template-columns:1fr; gap:18px}
     @media(min-width:980px){ .grid{grid-template-columns: 1.1fr .9fr} }
@@ -58,21 +58,13 @@
     textarea{min-height:96px; resize:vertical}
     button{
       background:linear-gradient(135deg,var(--brand),var(--brand2)); font-weight:700; cursor:pointer;
-      transition:transform .15s ease, filter .2s ease
+      transition:transform .15s ease, filter .2s ease, box-shadow .2s ease
     }
-    button:hover{transform:translateY(-1px)}
+    button:hover{transform:translateY(-2px); box-shadow:0 8px 22px rgba(30,136,229,.25)}
     .ghost{background:transparent; outline:1px solid rgba(255,255,255,.15)}
     .ok{background:linear-gradient(135deg,#2e7d32,#1b5e20)}
     .warn{background:linear-gradient(135deg,#ef6c00,#e65100)}
     .danger{background:linear-gradient(135deg,#e53935,#c62828)}
-    .table{width:100%; border-collapse:separate; border-spacing:0 8px}
-    .table th{font-size:.85rem; color:var(--muted); font-weight:700; text-align:right; padding:0 8px}
-    .table td{
-      background:#0f1420; border:1px solid rgba(255,255,255,.06); padding:10px; vertical-align:middle
-    }
-    .table tr td:first-child{border-radius:12px 0 0 12px}
-    .table tr td:last-child{border-radius:0 12px 12px 0}
-    .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.08); font-size:.85rem}
     .muted{color:var(--muted)}
     .flex{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     .right{margin-inline-start:auto}
@@ -82,7 +74,15 @@
     .kpi{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
     .kpi .card{padding:14px; text-align:center}
     .num{font-size:1.4rem; font-weight:900}
-    .link{color:#9ecbff; text-decoration:none}
+    .table{width:100%; border-collapse:separate; border-spacing:0 8px}
+    .table th{font-size:.85rem; color:var(--muted); font-weight:700; text-align:right; padding:0 8px}
+    .table td{background:#0f1420; border:1px solid rgba(255,255,255,.06); padding:10px; vertical-align:middle}
+    .table tr td:first-child{border-radius:12px 0 0 12px}
+    .table tr td:last-child{border-radius:0 12px 12px 0}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.08); font-size:.85rem}
+    .lock{display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1)}
+    .badge{font-size:.8rem; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.1)}
+    .disabled{opacity:.5; pointer-events:none}
   </style>
 </head>
 <body>
@@ -96,6 +96,10 @@
         <button class="tab" data-tab="about">על המערכת</button>
         <a class="tab" href="https://renuar.co.il" target="_blank" rel="noopener">לאתר Renuar ↗</a>
       </nav>
+      <div class="lock">
+        <span id="adminState" class="badge">מצב רגיל</span>
+        <button id="btnAdmin" class="ghost" title="כניסת מנהל (סיסמה: 2154)">🔒 מצב מנהל</button>
+      </div>
     </div>
   </header>
 
@@ -109,24 +113,49 @@
 
     <!-- PRODUCTS TAB -->
     <section id="tab-products" class="grid tab-panel cardlike">
+      <!-- مربع فلاتر عامة للجميع -->
       <div class="card">
-        <h2>🔎 חיפוש מהיר לפי מק״ט / שם</h2>
-        <div class="row two">
+        <h2>🔎 חיפוש מתקדם לכולם (שם / מחיר)</h2>
+        <div class="row three">
           <div>
-            <label for="q">חיפוש</label>
-            <input id="q" type="text" placeholder="לדוגמה: M250216 או חולצת אמבר"/>
+            <label for="fltName">שם מוצר</label>
+            <input id="fltName" placeholder="חולצה / ג׳ינס ..."/>
           </div>
-          <div class="tools" style="align-items:flex-end">
-            <button id="btnFind">חפש</button>
-            <button class="ghost" id="btnClear">נקה</button>
+          <div>
+            <label for="fltPriceMin">מחיר מינ׳ (₪)</label>
+            <input id="fltPriceMin" type="number" inputmode="decimal" step="0.01" placeholder="0"/>
+          </div>
+          <div>
+            <label for="fltPriceMax">מחיר מקס׳ (₪)</label>
+            <input id="fltPriceMax" type="number" inputmode="decimal" step="0.01" placeholder="9999"/>
           </div>
         </div>
-        <div id="quickResult" class="row" style="margin-top:12px"></div>
-        <p class="hint">טיפ: אפשר להדביק מק״ט וללחוץ Enter.</p>
+        <div class="tools" style="margin-top:8px">
+          <button id="btnApplyFilters">החל סינון</button>
+          <button id="btnResetFilters" class="ghost">איפוס</button>
+        </div>
       </div>
 
+      <!-- حقل SKU محمي للمستخدم فقط -->
       <div class="card">
-        <h2>➕ הוספה / עדכון פריט</h2>
+        <h2>🔐 חיפוש לפי מק״ט (למנהלים בלבד)</h2>
+        <div class="row two">
+          <div>
+            <label for="sku">מק״ט</label>
+            <input id="sku" placeholder="לדוגמה: M250216" disabled title="נדרש מצב מנהל (סיסמה: 2154)"/>
+          </div>
+          <div class="tools" style="align-items:flex-end">
+            <button id="btnSkuSearch" class="ghost disabled" title="נדרש מצב מנהל">חפש מק״ט</button>
+            <button id="btnSkuClear" class="ghost">נקה</button>
+          </div>
+        </div>
+        <div id="skuResult" style="margin-top:10px"></div>
+        <p class="hint">רק לאחר הפעלת <b>מצב מנהל</b> ניתן להקליד מק״ט ולראות תוצאות.</p>
+      </div>
+
+      <!-- إضافة / تحديث (التحديث يتطلب كلمة السر) -->
+      <div class="card">
+        <h2>🛠️ הוספה / עדכון פריט</h2>
         <div class="row three">
           <div>
             <label for="pCode">מק״ט (ייחודי)</label>
@@ -147,13 +176,14 @@
             <input id="pImg" placeholder="https://.../image.jpg"/>
           </div>
           <div class="tools" style="align-items:flex-end">
-            <button id="btnSave" class="ok">שמור פריט</button>
+            <button id="btnSave" class="ok" title="עדכון פריט דורש סיסמה">שמור פריט</button>
             <button id="btnReset" class="ghost">איפוס טופס</button>
           </div>
         </div>
-        <p class="hint">שמירה תעדכן פריט קיים אם המק״ט כבר נמצא.</p>
+        <p class="hint">שמירה תעדכן פריט קיים אם המק״ט כבר נמצא. <b>עדכון פריט</b> זמין רק במצב מנהל (סיסמה: 2154).</p>
       </div>
 
+      <!-- جدول المنتجات -->
       <div class="card">
         <div class="flex" style="justify-content:space-between">
           <h2>📦 טבלת מוצרים</h2>
@@ -229,7 +259,7 @@
             <button id="btnImport" class="ok">ייבוא JSON</button>
           </div>
         </div>
-        <p class="hint">הנתונים נשמרים בדפדפן (localStorage). לתיוג בין מחשבים יש לייבא/לייצא.</p>
+        <p class="hint">הנתונים נשמרים בדפדפן (localStorage). לשיתוף בין מחשבים יש לייבא/לייצא.</p>
       </div>
     </section>
 
@@ -237,19 +267,20 @@
     <section id="tab-about" class="grid" hidden>
       <div class="card">
         <h2>ℹ️ על המערכת</h2>
-        <p>מערכת קלה לניהול מוצרים וחוסרים. ללא התחברות, מותאם לנייד ודסקטופ, ושומר נתונים בדפדפן.</p>
+        <p>מערכת קלה לניהול מוצרים וחוסרים. שמירת נתונים בדפדפן, תמיכה מלאה בנייד ודסקטופ.</p>
         <ul>
-          <li>חיפוש מיידי לפי מק״ט או שם</li>
-          <li>הוספה/עדכון/מחיקה — על פי מק״ט ייחודי</li>
+          <li>חיפוש לכולם לפי שם/מחיר</li>
+          <li>חיפוש לפי מק״ט — <b>למנהלים בלבד</b></li>
+          <li>הוספה/עדכון — עדכון דורש סיסמה</li>
           <li>טבלת מוצרים עם תמונה ומיון</li>
           <li>רשימת חוסרים עם סימון כמטופל</li>
-          <li>ייבוא/ייצוא JSON ו-CSV</li>
+          <li>ייצוא/ייבוא JSON ו-CSV</li>
         </ul>
-        <p class="muted">טיפ: לשיתוף ציבורי, העלה את הקובץ הזה ל-GitHub Pages/Netlify.</p>
       </div>
     </section>
   </main>
 
+  <!-- טמפלטים -->
   <template id="rowTmpl">
     <tr>
       <td><img class="img-50" src="" alt=""></td>
@@ -286,104 +317,115 @@
 
   <script>
   (function(){
-    const LS_P = 'renuar_products_v2';
-    const LS_M = 'renuar_missing_v2';
+    // ====== CONSTANTS ======
+    const LS_P = 'renuar_products_v3';
+    const LS_M = 'renuar_missing_v3';
+    const MAX_PRODUCTS = 22000;
+    const ADMIN_PASS = '2154';
+
+    // ====== HELPERS ======
     const $ = s=>document.querySelector(s);
     const $$ = s=>document.querySelectorAll(s);
+    function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); touch(); }
+    function load(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } }
+    function money(x){ return isFinite(+x) ? `₪${(+x).toFixed(2)}` : '—' }
+    function touch(){ kpiUpdated.textContent = new Date().toLocaleString('he-IL') }
+    function toast(msg){
+      const el = document.createElement('div');
+      el.textContent = msg;
+      Object.assign(el.style,{position:'fixed',bottom:'20px',insetInlineStart:'20px',background:'#0f1420',
+        border:'1px solid rgba(255,255,255,.2)',padding:'10px 14px',borderRadius:'12px',zIndex:9999});
+      document.body.appendChild(el); setTimeout(()=>el.remove(),1600);
+    }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-    // State
+    // ====== STATE ======
     let products = load(LS_P, [
       { code:"M250216", name:"חולצת אמבר", price:119.90, image:"https://via.placeholder.com/300x300?text=Amber" },
       { code:"GAIMI001", name:"סניקרס גיימי", price:149.90, image:"https://via.placeholder.com/300x300?text=Gaimi" }
     ]);
     let missing = load(LS_M, []);
+    let adminEnabled = false;
 
-    // Elements
-    const q = $('#q'), quickResult = $('#quickResult');
+    // ====== ELEMENTS ======
+    // KPIs
+    const kpiProducts = $('#kpiProducts'), kpiMissing = $('#kpiMissing'), kpiUpdated = $('#kpiUpdated');
+    // Tabs
+    $$('.tab').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(btn.hasAttribute('href')) return;
+        const id = btn.dataset.tab;
+        $$('.tab').forEach(b=>b.setAttribute('aria-selected', b===btn ? 'true':'false'));
+        $$('section[id^="tab-"]').forEach(s=>s.hidden = !s.id.endsWith(id));
+        playTone(660, 0.05);
+      });
+    });
+
+    // Admin controls
+    const btnAdmin = $('#btnAdmin'), adminState = $('#adminState');
+    const sku = $('#sku'), btnSkuSearch = $('#btnSkuSearch'), btnSkuClear = $('#btnSkuClear'), skuResult = $('#skuResult');
+
+    // Filters (for all)
+    const fltName = $('#fltName'), fltPriceMin = $('#fltPriceMin'), fltPriceMax = $('#fltPriceMax');
+    const btnApplyFilters = $('#btnApplyFilters'), btnResetFilters = $('#btnResetFilters');
+
+    // Product form (save/update protected)
     const pCode = $('#pCode'), pName = $('#pName'), pPrice = $('#pPrice'), pImg = $('#pImg');
     const btnSave = $('#btnSave'), btnReset = $('#btnReset');
-    const tbody = $('#tbody');
-    const btnFind = $('#btnFind'), btnClear = $('#btnClear');
-    const btnSortCode = $('#btnSortCode'), btnSortName = $('#btnSortName'), btnSortPrice = $('#btnSortPrice');
-    const kpiProducts = $('#kpiProducts'), kpiMissing = $('#kpiMissing'), kpiUpdated = $('#kpiUpdated');
 
+    // Table + actions
+    const tbody = $('#tbody');
+    const btnSortCode = $('#btnSortCode'), btnSortName = $('#btnSortName'), btnSortPrice = $('#btnSortPrice');
+
+    // Missing
     const mText = $('#mText'), mQty = $('#mQty'), mNote = $('#mNote');
     const btnAddMissing = $('#btnAddMissing'), btnClearMissing = $('#btnClearMissing');
     const btnPurgeDone = $('#btnPurgeDone'), missingList = $('#missingList');
 
+    // Import/Export
     const fileInput = $('#fileInput'), btnImport = $('#btnImport'), btnExport = $('#btnExport'), btnExportCSV = $('#btnExportCSV');
 
-    // Tabs
-    $$('.tab').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        if(btn.hasAttribute('href')) return; // external
-        const id = btn.dataset.tab;
-        $$('.tab').forEach(b=>b.setAttribute('aria-selected', b===btn ? 'true':'false'));
-        $$('section[id^="tab-"]').forEach(s=>s.hidden = !s.id.endsWith(id));
-      });
+    // ====== ADMIN MODE ======
+    btnAdmin.addEventListener('click', ()=>{
+      if(!adminEnabled){
+        const pwd = prompt('סיסמת מנהל:');
+        if(pwd === ADMIN_PASS){
+          adminEnabled = true;
+          adminState.textContent = 'מצב מנהל פעיל';
+          $('#adminState').style.background = 'rgba(46,125,50,.3)';
+          sku.disabled = false; btnSkuSearch.classList.remove('disabled'); btnSkuSearch.title='';
+          toast('✔️ מצב מנהל הופעל');
+          playTone(880, 0.08);
+        }else{
+          toast('סיסמה שגויה');
+          playTone(180, 0.12);
+        }
+      }else{
+        adminEnabled = false;
+        adminState.textContent = 'מצב רגיל';
+        $('#adminState').style.background = 'rgba(255,255,255,.1)';
+        sku.disabled = true; btnSkuSearch.classList.add('disabled'); btnSkuSearch.title='נדרש מצב מנהל';
+        toast('מצב מנהל כובה');
+        playTone(300, 0.06);
+      }
     });
 
-    // Utils
-    function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); touch(); }
-    function load(k,def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def }catch{ return def } }
-    function money(x){ return isFinite(+x) ? `₪${(+x).toFixed(2)}` : '—' }
-    function touch(){ kpiUpdated.textContent = new Date().toLocaleString('he-IL') }
+    // ====== SOUNDS & BUTTON HOVER ======
+    // Add hover/click sounds to all buttons dynamically
+    function bindButtonSounds(){
+      $$('button').forEach(b=>{
+        if(b.dataset.soundBound) return;
+        b.dataset.soundBound = '1';
+        b.addEventListener('mouseenter', ()=>playTone(520, 0.03));
+        b.addEventListener('click', ()=>playTone(720, 0.05));
+      });
+    }
+    bindButtonSounds();
+
+    // ====== KPIs ======
     function setKPIs(){ kpiProducts.textContent = products.length; kpiMissing.textContent = missing.length; if(!kpiUpdated.textContent) touch(); }
 
-    // Quick search
-    function renderQuick(res){
-      if(!res){ quickResult.innerHTML = ''; return }
-      const img = res.image || 'https://via.placeholder.com/300x300?text=Product';
-      quickResult.innerHTML = `
-        <div class="card">
-          <div class="flex" style="gap:16px">
-            <img src="${img}" alt="${escapeHtml(res.name)}" class="img-50" style="width:90px;height:90px;border-radius:16px">
-            <div>
-              <div class="pill" style="margin-bottom:6px">${escapeHtml(res.name)}</div>
-              <div class="muted">מק״ט: <b>${escapeHtml(res.code)}</b></div>
-              <div>מחיר: <b>${money(res.price)}</b></div>
-            </div>
-            <div class="right tools">
-              <button class="ghost" id="qrFill">העבר לטופס</button>
-              <button class="ok" id="addToTable">הוסף לטבלה אם חסר</button>
-            </div>
-          </div>
-        </div>`;
-      $('#qrFill').onclick = ()=>fillForm(res);
-      $('#addToTable').onclick = ()=>{
-        if(!products.find(p=>p.code===res.code)){ products.push(res); save(LS_P, products); drawTable(); }
-      };
-    }
-    function doSearch(){
-      const term = q.value.trim().toLowerCase();
-      if(!term){ renderQuick(null); return }
-      const exact = products.find(p => p.code.toLowerCase()===term || p.name.toLowerCase()===term);
-      const res = exact || products.find(p => p.code.toLowerCase().includes(term) || p.name.toLowerCase().includes(term));
-      renderQuick(res || null);
-    }
-    q.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); });
-    btnFind.addEventListener('click', doSearch);
-    btnClear.addEventListener('click', ()=>{ q.value=''; renderQuick(null) });
-
-    // Form save/update
-    btnSave.addEventListener('click', ()=>{
-      const code = pCode.value.trim();
-      const name = pName.value.trim();
-      const price = +pPrice.value;
-      const image = pImg.value.trim();
-      if(!code || !name || isNaN(price)){ alert('אנא מלא מק״ט, שם ומחיר תקין'); return }
-      const obj = {code, name, price, image};
-      const i = products.findIndex(p=>p.code===code);
-      if(i>-1){ products[i]=obj; } else { products.push(obj); }
-      save(LS_P, products); drawTable(); fillForm(); alert('✔️ נשמר בהצלחה');
-    });
-    btnReset.addEventListener('click', ()=>fillForm());
-
-    function fillForm(p={}){
-      pCode.value = p.code||''; pName.value = p.name||''; pPrice.value = p.price!=null ? p.price : ''; pImg.value = p.image||'';
-    }
-
-    // Table
+    // ====== DRAW TABLE ======
     function drawTable(list=products){
       tbody.innerHTML='';
       const tmpl = $('#rowTmpl');
@@ -395,24 +437,107 @@
         tr.querySelector('.p-code .pill').textContent = p.code;
         tr.querySelector('.p-price').textContent = money(p.price);
 
-        tr.querySelector('[data-edit]').onclick = ()=>fillForm(p);
+        // Edit allowed only in admin (fills form; save is protected)
+        tr.querySelector('[data-edit]').onclick = ()=>{
+          fillForm(p);
+          if(!adminEnabled){ toast('עדכון פריט זמין רק במצב מנהל'); playTone(200,0.06); }
+        };
+
+        // Delete left للجميع (إن أردتها محمية، قلّي لأقفلها أيضًا)
         tr.querySelector('[data-delete]').onclick = ()=>{
-          if(confirm('למחוק את הפריט?')){ products = products.filter(x=>x.code!==p.code); save(LS_P, products); drawTable(); }
+          if(confirm('למחוק את הפריט?')){
+            products = products.filter(x=>x.code!==p.code); save(LS_P, products); drawTable();
+          }
         };
-        tr.querySelector('[data-copy]').onclick = ()=>{
-          navigator.clipboard.writeText(p.code).then(()=> toast('הועתק ✔️'));
-        };
+        tr.querySelector('[data-copy]').onclick = ()=>{ navigator.clipboard.writeText(p.code).then(()=> toast('הועתק ✔️')); };
+
         tbody.appendChild(tr);
       });
-      setKPIs();
+      setKPIs(); bindButtonSounds();
     }
 
-    // Sort
+    // ====== FILTERS FOR ALL ======
+    function applyFilters(){
+      const name = fltName.value.trim().toLowerCase();
+      const min = fltPriceMin.value ? +fltPriceMin.value : -Infinity;
+      const max = fltPriceMax.value ? +fltPriceMax.value : +Infinity;
+      const list = products.filter(p=>{
+        const okName = !name || p.name.toLowerCase().includes(name);
+        const price = +p.price;
+        const okPrice = (price>=min && price<=max);
+        return okName && okPrice;
+      });
+      drawTable(list);
+    }
+    btnApplyFilters.addEventListener('click', applyFilters);
+    btnResetFilters.addEventListener('click', ()=>{ fltName.value=''; fltPriceMin.value=''; fltPriceMax.value=''; drawTable(); });
+
+    // ====== SKU SEARCH (ADMIN ONLY) ======
+    function skuSearch(){
+      if(!adminEnabled){ toast('נדרש מצב מנהל'); playTone(200,0.06); return; }
+      const code = sku.value.trim().toLowerCase();
+      skuResult.innerHTML = '';
+      if(!code){ return; }
+      const exact = products.find(p=>p.code.toLowerCase()===code);
+      const res = exact || products.find(p=>p.code.toLowerCase().includes(code));
+      if(res){
+        const img = res.image || 'https://via.placeholder.com/300x300?text=Product';
+        skuResult.innerHTML = `
+          <div class="card">
+            <div class="flex" style="gap:16px">
+              <img src="${img}" alt="${escapeHtml(res.name)}" class="img-50" style="width:90px;height:90px;border-radius:16px">
+              <div>
+                <div class="pill" style="margin-bottom:6px">${escapeHtml(res.name)}</div>
+                <div class="muted">מק״ט: <b>${escapeHtml(res.code)}</b></div>
+                <div>מחיר: <b>${money(res.price)}</b></div>
+              </div>
+              <div class="right tools">
+                <button class="ghost" id="skuToForm">העבר לטופס</button>
+              </div>
+            </div>
+          </div>`;
+        $('#skuToForm').onclick = ()=>fillForm(res);
+        bindButtonSounds();
+      }else{
+        skuResult.innerHTML = `<div class="muted">❌ מוצר לא נמצא</div>`;
+      }
+    }
+    $('#btnSkuSearch').addEventListener('click', skuSearch);
+    sku.addEventListener('keydown', e=>{ if(e.key==='Enter') skuSearch(); });
+    btnSkuClear.addEventListener('click', ()=>{ sku.value=''; skuResult.innerHTML=''; });
+
+    // ====== PRODUCT FORM (SAVE/UPDATE REQUIRES ADMIN) ======
+    btnSave.addEventListener('click', ()=>{
+      if(!adminEnabled){ toast('עדכון פריט זמין רק במצב מנהל'); playTone(200,0.06); return; }
+
+      const code = pCode.value.trim();
+      const name = pName.value.trim();
+      const price = +pPrice.value;
+      const image = pImg.value.trim();
+
+      if(!code || !name || isNaN(price)){ alert('אנא מלא מק״ט, שם ומחיר תקין'); return }
+
+      // capacity check
+      const exists = products.findIndex(p=>p.code===code) > -1;
+      if(!exists && products.length >= MAX_PRODUCTS){
+        alert('חריגה מהמגבלה: ניתן לשמור עד 22,000 פריטים.');
+        return;
+      }
+
+      const obj = {code, name, price, image};
+      const i = products.findIndex(p=>p.code===code);
+      if(i>-1){ products[i]=obj; } else { products.push(obj); }
+      save(LS_P, products); drawTable(); fillForm(); alert('✔️ נשמר בהצלחה');
+    });
+    btnReset.addEventListener('click', ()=>fillForm());
+    function fillForm(p={}){ pCode.value = p.code||''; pName.value = p.name||''; pPrice.value = p.price!=null ? p.price : ''; pImg.value = p.image||''; }
+
+    // ====== TABLE SORT ======
     btnSortCode.onclick = ()=>{ products.sort((a,b)=>a.code.localeCompare(b.code,'he')); save(LS_P, products); drawTable(); };
     btnSortName.onclick = ()=>{ products.sort((a,b)=>a.name.localeCompare(b.name,'he')); save(LS_P, products); drawTable(); };
     btnSortPrice.onclick = ()=>{ products.sort((a,b)=>(+a.price)-(+b.price)); save(LS_P, products); drawTable(); };
 
-    // Missing
+    // ====== MISSING LIST ======
     btnAddMissing.addEventListener('click', ()=>{
       const text = mText.value.trim(); const qty = mQty.value? +mQty.value : ''; const note = mNote.value.trim();
       if(!text){ alert('אנא כתוב מה חסר'); return }
@@ -420,33 +545,31 @@
       missing.unshift(item); save(LS_M, missing); drawMissing(); mText.value=''; mQty.value=''; mNote.value='';
     });
     btnClearMissing.addEventListener('click', ()=>{ mText.value=''; mQty.value=''; mNote.value=''; });
-
+    btnPurgeDone.onclick = ()=>{
+      if(confirm('למחוק את כל הפריטים שסומנו כטופל?')){
+        missing = missing.filter(m=>!m.done); save(LS_M, missing); drawMissing();
+      }
+    };
     function drawMissing(){
-      missingList.innerHTML='';
+      const list = $('#missingList'); list.innerHTML='';
       const tmpl = $('#missTmpl');
       missing.forEach(m=>{
         const node = tmpl.content.firstElementChild.cloneNode(true);
         node.querySelector('[data-text]').textContent = m.text;
         node.querySelector('[data-qty]').textContent = m.qty!=='' ? `כמות: ${m.qty}` : '';
         node.querySelector('[data-note]').textContent = m.note || '';
-        const cb = node.querySelector('[data-done]');
-        cb.checked = !!m.done;
+        const cb = node.querySelector('[data-done]'); cb.checked = !!m.done;
         cb.onchange = ()=>{ m.done = cb.checked; save(LS_M, missing); setKPIs(); };
         node.querySelector('[data-del]').onclick = ()=>{
           if(confirm('למחוק את הרשומה?')){ missing = missing.filter(x=>x.id!==m.id); save(LS_M, missing); drawMissing(); }
         };
         if(m.done){ node.style.opacity=.6 }
-        missingList.appendChild(node);
+        list.appendChild(node);
       });
-      setKPIs();
-    }
-    btnPurgeDone.onclick = ()=>{
-      if(confirm('למחוק את כל הפריטים שסומנו כטופל?')){
-        missing = missing.filter(m=>!m.done); save(LS_M, missing); drawMissing();
-      }
+      setKPIs(); bindButtonSounds();
     }
 
-    // Import/Export
+    // ====== IMPORT/EXPORT ======
     btnExport.onclick = ()=>{
       const data = { products, missing, exportedAt:new Date().toISOString() };
       download('renuar-data.json', JSON.stringify(data, null, 2));
@@ -464,7 +587,10 @@
       reader.onload = ()=>{
         try{
           const parsed = JSON.parse(reader.result);
-          if(parsed.products) products = parsed.products;
+          if(parsed.products){
+            if(parsed.products.length > MAX_PRODUCTS){ alert('הקובץ עובר את מגבלת 22,000 פריטים'); return; }
+            products = parsed.products;
+          }
           if(parsed.missing) missing = parsed.missing;
           save(LS_P, products); save(LS_M, missing);
           drawTable(); drawMissing(); alert('✅ יובא בהצלחה');
@@ -472,29 +598,40 @@
       };
       reader.readAsText(f);
     };
-
-    // Helpers
     function download(name, content){
       const blob = new Blob([content], {type:'application/octet-stream'});
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
       setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
     }
-    function toast(msg){
-      const el = document.createElement('div');
-      el.textContent = msg;
-      Object.assign(el.style,{
-        position:'fixed', bottom:'20px', insetInlineStart:'20px', background:'#0f1420',
-        border:'1px solid rgba(255,255,255,.2)', padding:'10px 14px', borderRadius:'12px', zIndex:9999
-      });
-      document.body.appendChild(el); setTimeout(()=>el.remove(),1500);
+
+    // ====== AUDIO (WebAudio) ======
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    function playTone(freq=600, dur=0.05){
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(ctx.destination);
+      const now = ctx.currentTime;
+      g.gain.exponentialRampToValueAtTime(0.08, now+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+      o.start(); o.stop(now+dur+0.02);
     }
-    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-    // Init
-    setKPIs(); drawTable(); drawMissing(); renderQuick(null);
+    // ====== INIT ======
+    function setInitialAdminUI(){
+      // start as normal user
+      adminEnabled = false;
+      sku.disabled = true;
+      btnSkuSearch.classList.add('disabled'); btnSkuSearch.title='נדרש מצב מנהל';
+      adminState.textContent = 'מצב רגיל';
+    }
 
-    // Accessibility: keyboard focus for tabs
+    setInitialAdminUI();
+    setKPIs(); drawTable(); drawMissing();
     document.addEventListener('keydown', (e)=>{
+      // quick tab shortcuts
       if(e.ctrlKey && e.key==='1') $$('[data-tab]')[0].click();
       if(e.ctrlKey && e.key==='2') $$('[data-tab]')[1].click();
       if(e.ctrlKey && e.key==='3') $$('[data-tab]')[2].click();
